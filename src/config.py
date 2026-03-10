@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     pipeline_runs_collection: str = "ops_pipeline_runs"
     pipeline_node_runs_collection: str = "ops_pipeline_node_runs"
 
+    # GCS
+    gcs_bucket: str = "pipeliner-uploads"
+
     # CoreAgents service URL
     coreagents_base_url: str = "https://core-agents.mf4g.studio/v1"
 
