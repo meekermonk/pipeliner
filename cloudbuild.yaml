@@ -1,0 +1,47 @@
+steps:
+  # Build combined UI + API image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.combined'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:latest'
+      - '.'
+    id: 'build'
+
+  # Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '--all-tags', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app']
+    id: 'push'
+    waitFor: ['build']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pipeliner-app'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:${SHORT_SHA}'
+      - '--region=${_REGION}'
+      - '--memory=1Gi'
+      - '--cpu=2'
+      - '--min-instances=0'
+      - '--max-instances=10'
+      - '--timeout=300'
+      - '--port=8080'
+      - '--set-env-vars=GCP_PROJECT_ID=${PROJECT_ID}'
+    id: 'deploy'
+    waitFor: ['push']
+
+substitutions:
+  _REGION: us-central1
+
+images:
+  - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
