@@ -137,9 +137,13 @@ class PipelineExecutor:
 
         grounding_context = self._assemble_grounding_context(run_inputs)
 
+        # Filter sensitive/internal keys before spreading run_inputs into dispatch
+        _dispatch_excluded_keys = {"access_token", "grounding_docs"}
+        filtered_inputs = {k: v for k, v in run_inputs.items() if k not in _dispatch_excluded_keys}
+
         inner_payload: dict[str, Any] = {
             "mode": mode,
-            **run_inputs,
+            **filtered_inputs,
             **config.get("payload_overrides", {}),
         }
         if grounding_context:
