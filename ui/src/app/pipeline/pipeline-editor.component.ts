@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  HostListener,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -397,7 +398,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
         </div>
 
         <!-- Canvas -->
-        <div class="canvas-container">
+        <div class="canvas-container" [class.connect-mode]="!!armedPortId" (click)="onCanvasClick()">
           <f-flow
             fFlowId="workflow"
             fDraggable
@@ -474,10 +475,14 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                         <div class="io-port" [matTooltip]="inp.description" matTooltipPosition="left">
                           <div
                             class="port port-input"
+                            [class.port-armed]="armedPortId === 'in-' + node.id + '-' + inp.name"
+                            [class.port-receivable]="isPortReceivable('in-' + node.id + '-' + inp.name, 'input')"
                             fNodeInput
                             [fInputId]="'in-' + node.id + '-' + inp.name"
                             fInputConnectableSide="left"
                             [fInputMultiple]="true"
+                            (dblclick)="onPortDoubleClick('in-' + node.id + '-' + inp.name, 'input', $event)"
+                            (click)="onPortClick('in-' + node.id + '-' + inp.name, 'input', $event)"
                           ></div>
                           <span class="port-name">{{ inp.name }}</span>
                           <span class="port-type">{{ inp.type }}</span>
@@ -492,9 +497,13 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                           <span class="port-name">{{ out.name }}</span>
                           <div
                             class="port port-output"
+                            [class.port-armed]="armedPortId === 'out-' + node.id + '-' + out.name"
+                            [class.port-receivable]="isPortReceivable('out-' + node.id + '-' + out.name, 'output')"
                             fNodeOutput
                             [fOutputId]="'out-' + node.id + '-' + out.name"
                             fOutputConnectableSide="right"
+                            (dblclick)="onPortDoubleClick('out-' + node.id + '-' + out.name, 'output', $event)"
+                            (click)="onPortClick('out-' + node.id + '-' + out.name, 'output', $event)"
                           ></div>
                         </div>
                       }
@@ -899,6 +908,41 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
     .port-input { left: -6px; }
     .port-output { right: -6px; }
 
+    /* ═══ Click-to-Connect States ═══ */
+    .port-armed {
+      width: 16px !important; height: 16px !important;
+      background: white !important;
+      border: 3px solid var(--node-color) !important;
+      box-shadow: 0 0 0 4px var(--node-color), 0 0 12px var(--node-color) !important;
+      animation: armed-pulse 1.2s ease-in-out infinite;
+    }
+    .port-receivable {
+      width: 14px !important; height: 14px !important;
+      background: var(--node-color) !important;
+      box-shadow: 0 0 0 3px var(--node-color-glow), 0 0 8px var(--node-color-glow) !important;
+      cursor: pointer !important;
+      animation: receivable-breathe 1s ease-in-out infinite;
+    }
+    .port-receivable:hover {
+      width: 18px !important; height: 18px !important;
+      box-shadow: 0 0 0 4px var(--node-color), 0 0 16px var(--node-color) !important;
+    }
+    .connect-mode .workflow-node { pointer-events: auto; }
+    .connect-mode .node-header,
+    .connect-mode .node-config,
+    .connect-mode .config-select,
+    .connect-mode .node-delete { pointer-events: none; opacity: 0.6; }
+    .connect-mode .io-port { pointer-events: auto; }
+
+    @keyframes armed-pulse {
+      0%, 100% { box-shadow: 0 0 0 4px var(--node-color), 0 0 12px var(--node-color); }
+      50% { box-shadow: 0 0 0 6px var(--node-color), 0 0 20px var(--node-color); }
+    }
+    @keyframes receivable-breathe {
+      0%, 100% { box-shadow: 0 0 0 3px var(--node-color-glow), 0 0 8px var(--node-color-glow); }
+      50% { box-shadow: 0 0 0 5px var(--node-color-glow), 0 0 14px var(--node-color-glow); }
+    }
+
     /* ═══ Foblex overrides ═══ */
     ::ng-deep {
       .f-connection path { stroke: var(--color-outline-variant, #dadce0); stroke-width: 2; fill: none; }
@@ -925,6 +969,10 @@ export class PipelineEditorComponent implements OnInit {
   cachedContentAgents: AgentDef[] = AGENT_REGISTRY.filter(a => a.group === 'content');
   cachedOperationalAgents: AgentDef[] = AGENT_REGISTRY.filter(a => a.group === 'operational');
   private lastSearchQuery = '';
+
+  // Click-to-connect state
+  armedPortId: string | null = null;
+  armedPortDirection: 'input' | 'output' | null = null;
 
   private template: any = null;
   private nodeCounter = 0;
@@ -1012,6 +1060,70 @@ export class PipelineEditorComponent implements OnInit {
     // Force re-render
     this.nodes = [...this.nodes];
     this.cdr.markForCheck();
+  }
+
+  /* ═══ Click-to-Connect ═══
+   * Double-click a port to "arm" it. Compatible ports on other nodes
+   * highlight as receivable. Single-click a receivable port to wire.
+   * Escape or clicking the canvas background disarms.
+   */
+
+  @HostListener('document:keydown.escape')
+  disarmPort(): void {
+    if (this.armedPortId) {
+      this.armedPortId = null;
+      this.armedPortDirection = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  onPortDoubleClick(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.armedPortId = portId;
+    this.armedPortDirection = direction;
+    this.cdr.markForCheck();
+  }
+
+  onPortClick(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
+    if (!this.armedPortId) return;
+    event.stopPropagation();
+    event.preventDefault();
+
+    // Can only connect output→input or input→output
+    if (direction === this.armedPortDirection) return;
+
+    const outputId = direction === 'input' ? this.armedPortId : portId;
+    const inputId = direction === 'input' ? portId : this.armedPortId;
+
+    // Don't connect to same node
+    const outputNodeId = outputId.split('-').slice(1, -1).join('-');
+    const inputNodeId = inputId.split('-').slice(1, -1).join('-');
+    if (outputNodeId === inputNodeId) return;
+
+    // Don't create duplicate edges
+    const exists = this.edges.some(e => e.outputId === outputId && e.inputId === inputId);
+    if (exists) { this.disarmPort(); return; }
+
+    this.edgeCounter++;
+    this.edges = [...this.edges, {
+      id: `edge-${Date.now()}-${this.edgeCounter}`,
+      outputId,
+      inputId,
+    }];
+    this.disarmPort();
+  }
+
+  isPortReceivable(portId: string, direction: 'input' | 'output'): boolean {
+    if (!this.armedPortId || direction === this.armedPortDirection) return false;
+    // Not on same node
+    const armedNodeId = this.armedPortId.split('-').slice(1, -1).join('-');
+    const thisNodeId = portId.split('-').slice(1, -1).join('-');
+    return armedNodeId !== thisNodeId;
+  }
+
+  onCanvasClick(): void {
+    this.disarmPort();
   }
 
   deleteNode(nodeId: string): void {
