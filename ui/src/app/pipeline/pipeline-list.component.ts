@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ApiService } from '../services/api.service';
+import { ManifestService, Manifest } from '../services/manifest.service';
 
 @Component({
   selector: 'app-pipeline-list',
@@ -16,6 +18,7 @@ import { ApiService } from '../services/api.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatDialogModule,
   ],
   template: `
     <!-- Loading -->
@@ -349,11 +352,65 @@ export class PipelineListComponent implements OnInit {
   constructor(
     private api: ApiService,
     private router: Router,
+    private route: ActivatedRoute,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private manifestService: ManifestService,
   ) {}
 
   ngOnInit(): void {
     this.loadTemplates();
+    this.checkForManifestHandoff();
+  }
+
+  private checkForManifestHandoff(): void {
+    const params = this.route.snapshot.queryParams;
+    const source = params['source'];
+    const sessionId = params['session_id'];
+    const manifest = params['manifest'];
+
+    if (source === 'core-agents' && sessionId && manifest === 'ready') {
+      const dialogRef = this.dialog.open(ManifestImportDialogComponent, {
+        width: '440px',
+        disableClose: true,
+        data: { sessionId },
+      });
+
+      dialogRef.afterClosed().subscribe((accepted: boolean) => {
+        // Clear query params regardless of outcome
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+
+        if (accepted) {
+          this.importManifest(sessionId);
+        }
+      });
+    }
+  }
+
+  private importManifest(sessionId: string): void {
+    this.loading = true;
+    this.manifestService.fetchManifest(sessionId).subscribe({
+      next: (manifest: Manifest) => {
+        const name = manifest.title || 'Imported Workflow';
+        const description = `Imported from CoreAgents session ${manifest.session_id}`;
+        this.api.createPipelineTemplate({ name, description }).subscribe({
+          next: (result) => {
+            this.snackBar.open(`Imported "${name}"`, '', { duration: 3000 });
+            this.router.navigate(['/pipeline', result.id], {
+              state: { manifest },
+            });
+          },
+          error: () => {
+            this.loading = false;
+            this.snackBar.open('Failed to create workflow from manifest', 'Dismiss', { duration: 4000 });
+          },
+        });
+      },
+      error: () => {
+        this.loading = false;
+        this.snackBar.open('Failed to fetch manifest from CoreAgents', 'Dismiss', { duration: 4000 });
+      },
+    });
   }
 
   getWorkflowColor(template: any): string {
@@ -425,4 +482,63 @@ export class PipelineListComponent implements OnInit {
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Manifest Import Dialog — inline confirmation dialog
+   ═══════════════════════════════════════════════════════════════════════════ */
+@Component({
+  selector: 'app-manifest-import-dialog',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule],
+  template: `
+    <div class="import-dialog">
+      <div class="dialog-icon">
+        <span class="material-symbols-outlined">cloud_download</span>
+      </div>
+      <h2>Import from CoreAgents</h2>
+      <p>
+        A manifest is ready from CoreAgents session.
+        Import it to create a new workflow pre-configured with agent outputs?
+      </p>
+      <div class="dialog-actions">
+        <button mat-stroked-button (click)="dialogRef.close(false)">Cancel</button>
+        <button mat-flat-button color="primary" (click)="dialogRef.close(true)">
+          <mat-icon>download</mat-icon>
+          Import
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .import-dialog {
+      padding: 24px;
+      text-align: center;
+    }
+    .dialog-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #e8f0fe;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      .material-symbols-outlined { font-size: 28px; color: #1A73E8; }
+    }
+    h2 {
+      font-size: 18px; font-weight: 600; margin: 0 0 8px;
+      color: var(--color-on-surface, #1d1b20);
+    }
+    p {
+      font-size: 14px; line-height: 1.5; margin: 0 0 24px;
+      color: var(--color-on-surface-variant, #49454f);
+    }
+    .dialog-actions {
+      display: flex; gap: 12px; justify-content: center;
+      button { border-radius: 8px !important; }
+    }
+  `],
+})
+export class ManifestImportDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<ManifestImportDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { sessionId: string },
+  ) {}
 }
