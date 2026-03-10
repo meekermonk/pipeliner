@@ -1,4 +1,20 @@
-"""Pydantic models for pipeline templates and runs."""
+"""Pydantic models for pipeline templates and runs.
+
+These models define the core domain objects for pipeline orchestration.
+A PipelineTemplate is a saved workflow graph (nodes + edges). A PipelineRun
+is a single execution of that template, tracking per-node status and outputs.
+
+Constraint: Templates store nodes and edges as JSON-serializable dicts, not
+as typed NodeDescriptor/Edge lists, because the frontend Foblex editor
+produces arbitrary JSON that may include UI-specific metadata (positions,
+colors, viewport state). Strict typing at the model layer would reject
+valid editor output.
+
+Constraint: RunStatus follows a strict state machine:
+  pending → running → completed | failed | paused
+  The 'paused' state occurs when a human-review node is encountered.
+  There is no 'cancelled' state — runs either complete or fail.
+"""
 
 from __future__ import annotations
 

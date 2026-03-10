@@ -1,4 +1,18 @@
-"""Environment-driven configuration."""
+"""Pipeliner configuration — environment-driven settings.
+
+All settings are loaded from environment variables with sensible defaults
+for the production environment (meekerexperiments project). Local development
+typically needs no overrides — the defaults point to the shared Spanner
+instance and CoreAgents production URL.
+
+Constraint: The Spanner instance (innovation-graph) and database (innovation)
+are shared with Ops Console and CoreAgents. All three apps read/write their
+own tables in the same database. This was an intentional choice to avoid
+Spanner provisioning overhead (Spanner bills per node, not per database).
+
+Source reference: Deployment config in
+docs/plans/2026-03-09-pipeliner-standalone-design.md.
+"""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

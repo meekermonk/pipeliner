@@ -1,4 +1,22 @@
-"""Pipeline executor — walks a DAG and dispatches agent nodes via CoreAgents."""
+"""Pipeline executor — walks a DAG and dispatches agent nodes via CoreAgents.
+
+Orchestrates pipeline execution by topologically sorting the node graph,
+then walking it sequentially. Each node type has a dedicated handler:
+agent nodes dispatch to CoreAgents, I/O nodes interact with Google Drive,
+and human-review nodes pause execution.
+
+Key business constraint: Pipelines must be acyclic. Creative production
+workflows flow in one direction (brief → strategy → creative → delivery).
+Cycles would cause infinite agent dispatch loops and unbounded cost.
+
+Key security constraint: User OAuth access_tokens are filtered from agent
+dispatch payloads. Only the executor uses them (for Drive operations).
+CoreAgents authenticates via service-account ID tokens, not user tokens.
+
+Source reference: CoreAgents `/v1/dispatch` contract defined in
+/Users/dave/playground/Coreagents/src/api/dispatch.py. The `brief_context`
+field in the dispatch payload is how grounding documents reach agents.
+"""
 
 from __future__ import annotations
 

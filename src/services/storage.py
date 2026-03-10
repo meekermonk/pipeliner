@@ -1,4 +1,17 @@
-"""GCS upload utility."""
+"""GCS upload utility — stores uploaded files and Drive imports in Cloud Storage.
+
+Files are stored at gs://{bucket}/pipeliner/uploads/{uuid}{ext}. UUID-based
+paths prevent name collisions and avoid exposing original filenames in URIs.
+
+Signed URLs expire after 1 hour. This is sufficient for the pipeline execution
+lifecycle — runs typically complete within minutes. The URL is returned to the
+frontend for preview purposes only; agents receive text_content, not URLs.
+
+Constraint: The GCS bucket (pipeliner-uploads) must exist in the same project.
+The Cloud Run service account needs roles/storage.objectCreator on the bucket.
+
+Source reference: Pattern ported from CoreAgents media/storage.py.
+"""
 
 from __future__ import annotations
 

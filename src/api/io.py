@@ -1,4 +1,27 @@
-"""File upload, Google Drive import, and export routes."""
+"""File upload, Google Drive import, and export routes.
+
+Three I/O endpoints that handle document ingestion and output delivery:
+
+1. Upload: Accept files (PDF, DOCX, PPTX, TXT, CSV), extract text, store in GCS.
+2. Drive import: Fetch files from Google Drive using user's OAuth token.
+3. Doc export: Create Google Docs from pipeline output (proxied to CoreAgents).
+
+Architectural decision: Upload and Drive import are owned by the Pipeliner
+(~80 lines of straightforward GCS + Google API code). Proxying through
+CoreAgents would add latency for large files. Doc export proxies to CoreAgents
+because the markdown-to-Google-Docs formatting logic is complex (~300 lines)
+and already maintained there.
+
+Constraint: Max upload size is 50MB. Text extraction caps at 50,000 chars.
+These limits prevent oversized agent dispatch payloads (Gemini context window).
+
+Constraint: OAuth access_tokens are passed per-request and never stored.
+The user grants scope via the Google Drive Picker in the frontend.
+Scopes needed: drive.readonly (import), drive.file (export).
+
+Source reference: CoreAgents export endpoint at
+/Users/dave/playground/Coreagents/src/api/export.py.
+"""
 
 from __future__ import annotations
 

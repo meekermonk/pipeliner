@@ -1,4 +1,20 @@
-"""Pipeline template and run CRUD routes."""
+"""Pipeline template and run CRUD routes.
+
+Handles the lifecycle of pipeline templates (saved workflow graphs) and
+pipeline runs (executions of those templates). Also proxies the agent
+registry from CoreAgents so the frontend editor can populate its palette.
+
+Constraint: Row-level security uses x-goog-authenticated-user-email from
+IAP headers. This header is trusted (set by Google's infrastructure, not
+the client). If IAP is not configured (local dev), falls back to 'anonymous'.
+
+Constraint: The agent registry proxy has a 10-second timeout. If CoreAgents
+is slow or down, the frontend falls back to its baked-in AGENT_REGISTRY array.
+The 502 response signals the frontend to use the fallback.
+
+Source reference: CoreAgents agent list endpoint at
+/Users/dave/playground/Coreagents/src/api/agents.py.
+"""
 
 from __future__ import annotations
 

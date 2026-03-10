@@ -1,4 +1,23 @@
-"""Spanner service — pipeline tables only."""
+"""Spanner service — pipeline tables only.
+
+Provides async CRUD operations for the three pipeline tables in the shared
+Spanner instance (innovation-graph / innovation database).
+
+Architectural decision: Spanner instead of Firestore because the Ops Console
+and CoreAgents already use this instance. Sharing avoids provisioning overhead
+and enables future cross-app queries. The tradeoff is that Spanner's JSON
+support requires manual serialization (json.dumps/loads at this layer).
+
+Constraint: JSON columns (nodes, edges, inputs, outputs, etc.) are stored as
+STRING(MAX), not Spanner's native JSON type, for consistency with the existing
+Ops Console schema. All JSON handling happens in _split_fields / _row_to_dict.
+
+Constraint: created_at and updated_at use COMMIT_TIMESTAMP — Spanner sets the
+value at commit time, ensuring globally consistent timestamps. These columns
+cannot be set by application code.
+
+Source reference: Table DDL in migrations/001_pipeline_tables.sql.
+"""
 
 import asyncio
 import json

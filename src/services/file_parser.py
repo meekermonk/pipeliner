@@ -1,4 +1,25 @@
-"""Extract text from uploaded files."""
+"""Extract text from uploaded files for pipeline grounding context.
+
+Converts binary file content into plain text that agents can consume.
+The extracted text becomes part of grounding_docs, which the executor
+injects as brief_context into every agent dispatch payload.
+
+Supported formats: PDF, DOCX, PPTX, TXT, MD, CSV. Unsupported formats
+return empty string — the file is still stored in GCS but won't contribute
+to grounding context.
+
+Constraint: Libraries (PyPDF2, python-docx, python-pptx) are imported lazily
+inside extraction functions. This keeps the import fast for endpoints that
+don't need parsing, and fails gracefully if a library is missing.
+
+Constraint: All extraction functions catch Exception broadly and return "".
+A corrupt file should not crash a pipeline run — it simply contributes no
+text to grounding context. The file's GCS URI is still available for manual
+download.
+
+Source reference: SCP briefs (docs/reference/scp-brief-template-extracted.md
+in Ops Console) arrive as DOCX or PDF. This parser handles both.
+"""
 
 from __future__ import annotations
 
