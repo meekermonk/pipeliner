@@ -7,9 +7,10 @@ Architectural decision: Spanner instead of Firestore because the Ops Console
 and CoreAgents already use this instance. Sharing avoids provisioning overhead
 and enables future cross-app queries.
 
-Constraint: JSON columns (nodes, edges, inputs, outputs, etc.) use Spanner's
-native JSON type. The Python client handles serialization transparently —
-pass Python dicts/lists directly on write, receive them back on read.
+Constraint: JSON columns (nodes, edges, inputs, outputs, etc.) are declared
+as native JSON in DDL but the mutation API requires json.dumps() on write.
+On read, the client returns JSON column values as strings that need
+json.loads(). This json.dumps/loads layer is required — do not remove it.
 
 Constraint: created_at and updated_at use COMMIT_TIMESTAMP — Spanner sets the
 value at commit time, ensuring globally consistent timestamps. These columns
@@ -19,6 +20,7 @@ Source reference: Table DDL in migrations/001_pipeline_tables.sql.
 """
 
 import asyncio
+import json
 import uuid
 from typing import Optional
 
@@ -83,6 +85,7 @@ class SpannerService:
     def _split_fields(self, table: str, data: dict, doc_id: str) -> tuple[list[str], list]:
         pk_col = _pk_col(table)
         known = TABLE_COLUMNS.get(table, set())
+        json_cols = JSON_COLUMNS.get(table, set())
 
         columns = [pk_col]
         values: list = [doc_id]
@@ -91,6 +94,8 @@ class SpannerService:
             if key == pk_col or key == "id" or key in COMMIT_TS_COLUMNS:
                 continue
             if key in known:
+                if key in json_cols and val is not None:
+                    val = json.dumps(val)
                 columns.append(key)
                 values.append(val)
 
@@ -103,8 +108,15 @@ class SpannerService:
 
     def _row_to_dict(self, table: str, columns: list[str], row) -> dict:
         pk_col = _pk_col(table)
+        json_cols = JSON_COLUMNS.get(table, set())
         result: dict = {}
         for col, val in zip(columns, row):
+            if col in json_cols and val is not None:
+                if isinstance(val, str):
+                    try:
+                        val = json.loads(val)
+                    except (json.JSONDecodeError, TypeError):
+                        pass
             result[col] = val
         if pk_col in result:
             result["id"] = result[pk_col]
@@ -139,6 +151,7 @@ class SpannerService:
     async def update_document(self, table: str, doc_id: str, data: dict) -> None:
         pk_col = _pk_col(table)
         known = TABLE_COLUMNS.get(table, set())
+        json_cols = JSON_COLUMNS.get(table, set())
 
         columns = [pk_col]
         values: list = [doc_id]
@@ -147,6 +160,8 @@ class SpannerService:
             if key == pk_col or key == "id" or key in COMMIT_TS_COLUMNS:
                 continue
             if key in known:
+                if key in json_cols and val is not None:
+                    val = json.dumps(val)
                 columns.append(key)
                 values.append(val)
 
