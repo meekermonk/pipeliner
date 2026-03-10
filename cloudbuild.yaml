@@ -6,7 +6,7 @@ steps:
       - '-f'
       - 'Dockerfile.combined'
       - '-t'
-      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:${SHORT_SHA}'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:${_TAG}'
       - '-t'
       - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:latest'
       - '.'
@@ -25,7 +25,7 @@ steps:
       - 'run'
       - 'deploy'
       - 'pipeliner-app'
-      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:${SHORT_SHA}'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app:${_TAG}'
       - '--region=${_REGION}'
       - '--memory=1Gi'
       - '--cpu=2'
@@ -40,6 +40,7 @@ steps:
 
 substitutions:
   _REGION: us-central1
+  _TAG: latest
 
 images:
   - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/ai-studio/pipeliner-app'
