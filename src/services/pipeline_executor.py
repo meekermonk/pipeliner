@@ -71,6 +71,8 @@ class PipelineExecutor:
 
         if not file_id or not access_token:
             raise ValueError("io-google-drive pull requires file_id in configuration and access_token in run_inputs")
+        if not mime_type:
+            raise ValueError("io-google-drive pull requires mime_type in configuration")
 
         headers = {"Authorization": f"Bearer {access_token}"}
 

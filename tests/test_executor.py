@@ -200,10 +200,20 @@ class TestDrivePull:
         node = {
             "id": "d1",
             "type": "io-google-drive",
-            "configuration": {"mode": "pull", "file_id": "abc"},
+            "configuration": {"mode": "pull", "file_id": "abc", "mime_type": "text/plain"},
         }
         with pytest.raises(ValueError, match="access_token"):
             await executor.handle_drive_pull(node, {})
+
+    @pytest.mark.asyncio
+    async def test_pull_missing_mime_type(self, executor):
+        node = {
+            "id": "d1",
+            "type": "io-google-drive",
+            "configuration": {"mode": "pull", "file_id": "abc"},
+        }
+        with pytest.raises(ValueError, match="mime_type"):
+            await executor.handle_drive_pull(node, {"access_token": "tok"})
 
     @pytest.mark.asyncio
     async def test_pull_truncates_at_50k(self, executor):
