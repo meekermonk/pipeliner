@@ -479,6 +479,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                           [class.port-row-receivable]="isPortReceivable('in-' + node.id + '-' + inp.name, 'input')"
                           [matTooltip]="inp.description"
                           matTooltipPosition="left"
+                          (mousedown)="onPortMouseDown('in-' + node.id + '-' + inp.name, 'input', $event)"
                           (click)="onPortClick('in-' + node.id + '-' + inp.name, 'input', $event)"
                         >
                           <div
@@ -502,6 +503,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                           [class.port-row-receivable]="isPortReceivable('out-' + node.id + '-' + out.name, 'output')"
                           [matTooltip]="out.description"
                           matTooltipPosition="right"
+                          (mousedown)="onPortMouseDown('out-' + node.id + '-' + out.name, 'output', $event)"
                           (click)="onPortClick('out-' + node.id + '-' + out.name, 'output', $event)"
                         >
                           <span class="port-type">{{ out.type }}</span>
@@ -551,16 +553,23 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
   styles: [`
     :host { display: block; height: 100%; }
 
-    /* ── CoreAgents design tokens ── */
+    /* ── Design tokens (dark-mode first) ── */
     :host {
-      --ca-elevation-1: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1);
-      --ca-elevation-2: 0 2px 6px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
-      --ca-elevation-3: 0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08);
-      --ca-glass-bg: rgba(255, 255, 255, 0.72);
-      --ca-glass-bg-dark: rgba(30, 30, 30, 0.72);
-      --ca-glass-blur: blur(12px);
+      --ca-elevation-1: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+      --ca-elevation-2: 0 3px 8px rgba(0,0,0,0.5), 0 6px 16px rgba(0,0,0,0.3);
+      --ca-elevation-3: 0 6px 16px rgba(0,0,0,0.5), 0 12px 32px rgba(0,0,0,0.35);
+      --ca-glass-bg: rgba(30, 30, 30, 0.80);
+      --ca-glass-blur: blur(16px);
       --ca-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
       --ca-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ca-border: rgba(255, 255, 255, 0.08);
+      --ca-border-strong: rgba(255, 255, 255, 0.14);
+      --ca-surface: #1a1a1a;
+      --ca-surface-variant: #242424;
+      --ca-surface-dim: #141414;
+      --ca-on-surface: #e4e4e4;
+      --ca-on-surface-variant: #9e9e9e;
+      --ca-outline-variant: rgba(255, 255, 255, 0.10);
     }
 
     .editor-shell {
@@ -568,7 +577,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       flex-direction: column;
       height: 100%;
       min-height: calc(100vh - 2px);
-      background: var(--color-surface-variant, #f8f9fa);
+      background: var(--ca-surface-dim);
     }
 
     /* ═══ Toolbar — glass header ═══ */
@@ -580,14 +589,14 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       background: var(--ca-glass-bg);
       backdrop-filter: var(--ca-glass-blur);
       -webkit-backdrop-filter: var(--ca-glass-blur);
-      border-bottom: 1px solid var(--color-outline-variant);
+      border-bottom: 1px solid var(--ca-border);
       box-shadow: var(--ca-elevation-1);
       flex-shrink: 0;
       z-index: 10;
       height: 56px;
     }
     .toolbar-left, .toolbar-right, .toolbar-center { display: flex; align-items: center; gap: 10px; }
-    .toolbar-divider { width: 1px; height: 24px; background: var(--color-outline-variant); }
+    .toolbar-divider { width: 1px; height: 24px; background: var(--ca-border-strong); }
 
     .toolbar-brand {
       display: flex;
@@ -597,15 +606,15 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
     .brand-mark {
       font-size: 17px;
       font-weight: 600;
-      color: var(--color-on-surface);
+      color: var(--ca-on-surface);
       letter-spacing: -0.3px;
     }
     .brand-sub {
       font-size: 11px;
       font-weight: 500;
-      color: var(--color-on-surface-variant);
+      color: var(--ca-on-surface-variant);
       padding: 2px 8px;
-      background: var(--color-surface-variant);
+      background: var(--ca-surface-variant);
       border-radius: 10px;
     }
 
@@ -615,8 +624,8 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       gap: 4px;
       font-size: 12px;
       font-weight: 500;
-      color: var(--color-on-surface-variant);
-      background: var(--color-surface-variant);
+      color: var(--ca-on-surface-variant);
+      background: var(--ca-surface-variant);
       padding: 3px 10px;
       border-radius: 12px;
       .stat-icon { font-size: 14px; width: 14px; height: 14px; }
@@ -635,19 +644,15 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       font-family: var(--font-sans);
       font-size: 16px;
       font-weight: 600;
-      color: var(--color-on-surface);
+      color: var(--ca-on-surface);
       padding: 6px 10px;
       border-radius: 8px;
       min-width: 200px;
       letter-spacing: -0.2px;
       transition: background 150ms;
-      &:hover { background: var(--color-surface-variant); }
-      &:focus { background: var(--color-surface-variant); outline: 2px solid var(--color-primary); outline-offset: 0; }
+      &:hover { background: var(--ca-surface-variant); }
+      &:focus { background: var(--ca-surface-variant); outline: 2px solid var(--color-primary); outline-offset: 0; }
     }
-
-    :host-context([data-theme="dark"]) .editor-toolbar,
-    :host-context([data-theme="dark"]) .palette-search { background: var(--ca-glass-bg-dark); }
-    :host-context([data-theme="dark"]) .palette { background: var(--color-surface, #1e1e1e); }
 
     /* ═══ Body ═══ */
     .editor-body { display: flex; flex: 1; overflow: hidden; }
@@ -656,8 +661,8 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
     .palette {
       width: 280px;
       min-width: 280px;
-      border-right: 1px solid var(--color-outline-variant);
-      background: var(--color-surface);
+      border-right: 1px solid var(--ca-border);
+      background: var(--ca-surface);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
@@ -668,18 +673,18 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       align-items: center;
       gap: 8px;
       padding: 12px 16px;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--ca-border);
       background: var(--ca-glass-bg);
       backdrop-filter: var(--ca-glass-blur);
       -webkit-backdrop-filter: var(--ca-glass-blur);
       position: sticky; top: 0; z-index: 2;
-      .search-icon { font-size: 20px; color: var(--color-on-surface-variant); }
+      .search-icon { font-size: 20px; color: var(--ca-on-surface-variant); }
     }
     .search-input {
       flex: 1; border: none; background: none;
       font-family: var(--font-sans); font-size: 13px;
-      color: var(--color-on-surface); outline: none;
-      &::placeholder { color: var(--color-on-surface-variant); }
+      color: var(--ca-on-surface); outline: none;
+      &::placeholder { color: var(--ca-on-surface-variant); }
     }
     .palette-scroll {
       flex: 1;
@@ -687,8 +692,8 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       padding: 6px 8px;
       &::-webkit-scrollbar { width: 6px; }
       &::-webkit-scrollbar-track { background: transparent; }
-      &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-      &::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+      &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+      &::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.20); }
     }
     .palette-group { padding: 0; }
     .group-header {
@@ -702,9 +707,9 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       cursor: pointer;
       font-family: var(--font-sans);
       color: var(--group-color, var(--color-primary));
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--ca-border);
       transition: background 150ms;
-      &:hover { background: var(--color-surface-variant); }
+      &:hover { background: var(--ca-surface-variant); }
       .group-icon { font-size: 18px; width: 18px; height: 18px; }
       .group-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; flex: 1; text-align: left; }
       .group-count {
@@ -750,7 +755,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
         transition: height 200ms var(--ca-ease-out), top 200ms var(--ca-ease-out);
       }
       &:hover {
-        background: var(--color-surface-variant);
+        background: var(--ca-surface-variant);
         &::before { height: 60%; top: 20%; }
       }
       &:active { cursor: grabbing; transform: scale(0.97); }
@@ -762,9 +767,9 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       .material-symbols-outlined { font-size: 18px; color: var(--agent-color); }
     }
     .agent-info { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
-    .agent-name { font-size: 13px; font-weight: 500; color: var(--color-on-surface); }
+    .agent-name { font-size: 13px; font-weight: 500; color: var(--ca-on-surface); }
     .agent-desc {
-      font-size: 11px; color: var(--color-on-surface-variant); line-height: 1.3;
+      font-size: 11px; color: var(--ca-on-surface-variant); line-height: 1.3;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
     .agent-badges { display: flex; gap: 4px; margin-top: 2px; flex-wrap: wrap; }
@@ -772,19 +777,19 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px;
       line-height: 1.4;
     }
-    .io-badge { background: var(--color-surface-variant); color: var(--color-on-surface-variant); }
-    .mode-pipeline { background: #E8F0FE; color: #1A73E8; }
-    .mode-studio { background: #F3E8FD; color: #9334E6; }
+    .io-badge { background: var(--ca-surface-variant); color: var(--ca-on-surface-variant); }
+    .mode-pipeline { background: rgba(26, 115, 232, 0.15); color: #6db3f8; }
+    .mode-studio { background: rgba(147, 52, 230, 0.15); color: #c084fc; }
 
     .palette-footer {
       display: flex; align-items: center; gap: 8px;
-      padding: 12px 16px; border-top: 1px solid var(--color-outline-variant);
-      font-size: 11px; color: var(--color-on-surface-variant);
+      padding: 12px 16px; border-top: 1px solid var(--ca-border);
+      font-size: 11px; color: var(--ca-on-surface-variant);
       .material-symbols-outlined { font-size: 14px; }
     }
 
     /* ═══ Canvas ═══ */
-    .canvas-container { flex: 1; position: relative; background: var(--color-surface-variant, #f8f9fa); }
+    .canvas-container { flex: 1; position: relative; background: var(--ca-surface-dim); }
     f-flow { width: 100%; height: 100%; }
 
     /* ═══ Empty State ═══ */
@@ -793,8 +798,8 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       transform: translate(-50%, -50%);
       display: flex; flex-direction: column; align-items: center;
       gap: 12px; pointer-events: none; text-align: center; max-width: 380px;
-      h3 { font-size: 18px; font-weight: 600; color: var(--color-on-surface); margin: 0; letter-spacing: -0.3px; }
-      p { font-size: 13px; color: var(--color-on-surface-variant); line-height: 1.5; margin: 0; }
+      h3 { font-size: 18px; font-weight: 600; color: var(--ca-on-surface); margin: 0; letter-spacing: -0.3px; }
+      p { font-size: 13px; color: var(--ca-on-surface-variant); line-height: 1.5; margin: 0; }
     }
     .empty-brand { margin-bottom: 8px; }
     .empty-logo {
@@ -805,15 +810,15 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
     .empty-hints { display: flex; gap: 20px; margin-top: 8px; }
     .hint {
       display: flex; align-items: center; gap: 4px;
-      font-size: 11px; color: var(--color-on-surface-variant);
+      font-size: 11px; color: var(--ca-on-surface-variant);
       .material-symbols-outlined { font-size: 16px; opacity: 0.6; }
     }
 
     /* ═══ Workflow Nodes — CoreAgents card style ═══ */
     .workflow-node {
       width: 260px;
-      background: var(--color-surface);
-      border: 1px solid var(--color-outline-variant);
+      background: var(--ca-surface);
+      border: 1px solid var(--ca-border-strong);
       border-radius: 12px;
       overflow: visible;
       position: relative;
@@ -853,16 +858,16 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       display: flex;
       flex-direction: column;
       gap: 6px;
-      border-bottom: 1px solid var(--color-outline-variant);
+      border-bottom: 1px solid var(--ca-border);
     }
     .config-row { display: flex; align-items: center; gap: 8px; }
     .config-label {
       font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--color-on-surface-variant); width: 40px; flex-shrink: 0;
+      color: var(--ca-on-surface-variant); width: 40px; flex-shrink: 0;
     }
     .config-select {
-      flex: 1; border: 1px solid var(--color-outline-variant); border-radius: 6px;
-      background: var(--color-surface); color: var(--color-on-surface);
+      flex: 1; border: 1px solid var(--ca-border-strong); border-radius: 6px;
+      background: var(--ca-surface-variant); color: var(--ca-on-surface);
       font-family: var(--font-sans); font-size: 12px; font-weight: 500;
       padding: 4px 8px; outline: none;
       transition: border-color 150ms;
@@ -879,23 +884,24 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
     .io-section { display: flex; flex-direction: column; gap: 2px; }
     .io-label {
       font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--color-on-surface-variant); padding: 0 14px; margin-bottom: 2px;
+      color: var(--ca-on-surface-variant); padding: 0 14px; margin-bottom: 2px;
     }
     .io-port {
       display: flex; align-items: center; gap: 4px;
-      padding: 3px 14px; position: relative;
+      padding: 5px 14px; position: relative;
       font-size: 11px;
+      cursor: pointer;
       transition: background 120ms;
-      &:hover { background: var(--color-surface-variant); }
+      &:hover { background: var(--ca-surface-variant); }
     }
     .port-name {
       font-family: var(--font-mono); font-size: 11px; font-weight: 500;
-      color: var(--color-on-surface); flex: 1;
+      color: var(--ca-on-surface); flex: 1;
     }
     .io-outputs .port-name { text-align: right; }
     .port-type {
       font-size: 9px; font-weight: 600; text-transform: uppercase;
-      color: var(--color-on-surface-variant); background: var(--color-surface-variant);
+      color: var(--ca-on-surface-variant); background: var(--ca-surface-variant);
       padding: 1px 5px; border-radius: 4px;
     }
 
@@ -903,7 +909,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       position: absolute;
       width: 10px; height: 10px; border-radius: 50%;
       top: 50%; transform: translateY(-50%);
-      border: 2px solid var(--color-surface);
+      border: 2px solid var(--ca-surface);
       background: var(--node-color);
       z-index: 1;
       transition: all 120ms var(--ca-ease-spring);
@@ -983,9 +989,9 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
 
     /* ═══ Foblex overrides ═══ */
     ::ng-deep {
-      .f-connection path { stroke: var(--color-outline-variant, #dadce0); stroke-width: 2; fill: none; }
+      .f-connection path { stroke: rgba(255,255,255,0.15); stroke-width: 2; fill: none; }
       .f-connection:hover path, .f-connection.f-selected path { stroke: var(--color-primary); stroke-width: 2.5; }
-      f-circle-pattern circle { fill: var(--color-outline-variant, #dadce0); r: 1; }
+      f-circle-pattern circle { fill: rgba(255,255,255,0.08); r: 1; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -1145,6 +1151,16 @@ export class PipelineEditorComponent implements OnInit {
       this.armedPortId = null;
       this.armedPortDirection = null;
       this.cdr.markForCheck();
+    }
+  }
+
+  /** Intercept mousedown on port rows to prevent Foblex drag from eating our click */
+  onPortMouseDown(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
+    if (this.armedPortId) {
+      // In connect mode — prevent Foblex from starting a drag
+      event.stopPropagation();
+      event.preventDefault();
+      this.onPortClick(portId, direction, event);
     }
   }
 
