@@ -1,18 +1,21 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { take } from 'rxjs/operators';
 import { ThemeService } from '../services/theme.service';
+import { EmbedBridgeService } from '../services/embed-bridge.service';
 
 @Component({
   selector: 'app-pipeline-shell',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [CommonModule, RouterOutlet],
   template: `
     <!-- Flow gradient stripe -->
-    <div class="flow-stripe"></div>
+    <div class="flow-stripe" *ngIf="!embedBridge.isEmbedded"></div>
 
     <div class="shell">
       <!-- Top bar -->
-      <header class="topbar">
+      <header class="topbar" *ngIf="!embedBridge.isEmbedded">
         <div class="topbar-brand">
           <span class="brand-logo">Pipeliner</span>
           <span class="brand-sub">Monks.Flow</span>
@@ -157,8 +160,28 @@ import { ThemeService } from '../services/theme.service';
     }
   `],
 })
-export class PipelineShellComponent {
+export class PipelineShellComponent implements OnInit {
   theme = inject(ThemeService);
+  readonly embedBridge = inject(EmbedBridgeService);
+
+  ngOnInit(): void {
+    if (this.embedBridge.isEmbedded) {
+      this.embedBridge.on('INIT').pipe(take(1)).subscribe(() => {
+        this.embedBridge.sendToParent('TOOL_READY', {
+          tool: 'pipeline',
+          embedded: true,
+          protocol_version: 1,
+        });
+      });
+
+      this.embedBridge.on('SYNC_REQUEST').subscribe(() => {
+        this.embedBridge.consumeDirty();
+        this.embedBridge.sendToParent('SYNC_RESPONSE', {
+          manifest_data: null,
+        });
+      });
+    }
+  }
 
   themeIcon(): string {
     const m = this.theme.mode();

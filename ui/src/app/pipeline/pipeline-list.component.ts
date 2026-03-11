@@ -6,8 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { take } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
 import { ManifestService, Manifest } from '../services/manifest.service';
+import { EmbedBridgeService } from '../services/embed-bridge.service';
 
 @Component({
   selector: 'app-pipeline-list',
@@ -356,11 +358,28 @@ export class PipelineListComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private manifestService: ManifestService,
+    private embedBridge: EmbedBridgeService,
   ) {}
 
   ngOnInit(): void {
     this.loadTemplates();
     this.checkForManifestHandoff();
+
+    if (this.embedBridge.isEmbedded) {
+      this.embedBridge.on('LOAD_MANIFEST').pipe(take(1)).subscribe(msg => {
+        const sessionId = msg.payload['session_id'] as string;
+        if (sessionId) {
+          const dialogRef = this.dialog.open(ManifestImportDialogComponent, {
+            width: '440px',
+            disableClose: true,
+            data: { sessionId },
+          });
+          dialogRef.afterClosed().subscribe((accepted: boolean) => {
+            if (accepted) this.importManifest(sessionId);
+          });
+        }
+      });
+    }
   }
 
   private checkForManifestHandoff(): void {
