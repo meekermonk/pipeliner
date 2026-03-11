@@ -13,8 +13,10 @@
   --text-primary: #1A1A1A; --text-secondary: #4A4A4A; --text-tertiary: #8A8A8A;
   --border-subtle: rgba(0,0,0,0.06); --border-medium: rgba(0,0,0,0.10);
   --blue: #4285F4; --red: #EA4335; --yellow: #FBBC05; --green: #34A853;
+  --purple: #9334E6; --orange: #E8710A;
   --blue-light: rgba(66,133,244,0.08); --red-light: rgba(234,67,53,0.08);
   --yellow-light: rgba(251,188,5,0.10); --green-light: rgba(52,168,83,0.08);
+  --purple-light: rgba(147,52,230,0.08); --orange-light: rgba(232,113,10,0.08);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
   --font: 'DM Sans', system-ui, sans-serif;
 }
@@ -23,8 +25,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
 
 .header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--bg); border-bottom: 1px solid var(--border-medium); display: flex; align-items: center; padding: 0 24px; z-index: 100; gap: 12px; }
-.header .logo { font-weight: 700; font-size: 18px; }
-.header .logo span { color: var(--green); }
+.header .logo { font-weight: 700; font-size: 18px; background: linear-gradient(135deg, #1A73E8, #9334E6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .header .sep { color: var(--text-tertiary); }
 .header .back { margin-left: auto; color: var(--blue); text-decoration: none; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
 .header .back:hover { text-decoration: underline; }
@@ -34,10 +35,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 .sidebar h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin: 16px 0 6px; }
 .sidebar h4:first-child { margin-top: 0; }
 .sidebar a { display: block; padding: 5px 10px; font-size: 13px; color: var(--text-secondary); text-decoration: none; border-radius: 6px; margin: 1px 0; }
-.sidebar a:hover { background: var(--green-light); color: var(--green); }
-.sidebar a.active { background: var(--green-light); color: var(--green); font-weight: 600; }
+.sidebar a:hover { background: var(--blue-light); color: var(--blue); }
+.sidebar a.active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
 
-.main { margin-left: 260px; margin-top: 56px; padding: 40px 48px 80px; max-width: 860px; }
+.main { margin-left: 260px; margin-top: 56px; padding: 40px 48px 80px; max-width: 900px; }
 h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
 .subtitle { font-size: 16px; color: var(--text-tertiary); margin-bottom: 40px; }
 h2 { font-size: 22px; font-weight: 700; margin: 48px 0 16px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
@@ -53,71 +54,187 @@ li { margin-bottom: 6px; }
 .badge-blue { background: var(--blue-light); color: var(--blue); }
 .badge-green { background: var(--green-light); color: var(--green); }
 .badge-yellow { background: var(--yellow-light); color: #B8860B; }
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+.badge-orange { background: var(--orange-light); color: var(--orange); }
 .icon-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.icon-row .material-symbols-outlined { color: var(--green); font-size: 20px; }
+.icon-row .material-symbols-outlined { color: var(--blue); font-size: 20px; }
 kbd { background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: 4px; padding: 2px 6px; font-size: 13px; font-family: monospace; }
+code { background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: 4px; padding: 1px 5px; font-size: 13px; font-family: monospace; color: var(--purple); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
 .tip { background: var(--blue-light); border-left: 3px solid var(--blue); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 14px; }
 .warn { background: var(--yellow-light); border-left: 3px solid var(--yellow); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 14px; }
 .step { display: flex; gap: 12px; margin: 12px 0; }
-.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
 .step-body { flex: 1; }
+
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+th { text-align: left; padding: 10px 12px; background: var(--bg-surface); border: 1px solid var(--border-subtle); font-weight: 600; font-size: 13px; }
+td { padding: 8px 12px; border: 1px solid var(--border-subtle); vertical-align: top; }
+td:first-child { font-weight: 500; white-space: nowrap; }
+
+.agent-table td:nth-child(3), .agent-table td:nth-child(4) { font-family: monospace; font-size: 12px; color: var(--text-tertiary); }
 
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .main { margin-left: 0; padding: 24px 20px 60px; }
-  .grid-2 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo"><span>Pipeliner</span></div>
+  <div class="logo">Pipeliner</div>
   <span class="sep">|</span> User Guide
   <a href="/" class="back"><span class="material-symbols-outlined" style="font-size:18px">arrow_back</span> Back to app</a>
 </div>
 
 <nav class="sidebar" id="sidebar">
   <h4>Getting Started</h4>
-  <a href="#getting-started">Sign In &amp; Pipelines</a>
-  <h4>Canvas</h4>
-  <a href="#agent-palette">The Agent Palette</a>
+  <a href="#overview">Overview</a>
+  <a href="#workflow-list">Workflow List</a>
+  <h4>Pipeline Editor</h4>
+  <a href="#editor-toolbar">Editor Toolbar</a>
+  <a href="#agent-palette">Agent Palette</a>
   <a href="#adding-nodes">Adding Nodes</a>
   <a href="#connecting-nodes">Connecting Nodes</a>
   <a href="#node-config">Node Configuration</a>
   <a href="#port-types">Port Types</a>
+  <h4>Agents</h4>
+  <a href="#io-agents">I/O Agents</a>
+  <a href="#operational-agents">Operational Agents</a>
+  <a href="#creative-agents">Creative Agents</a>
+  <a href="#google-drive">Google Drive Node</a>
   <h4>Workflow</h4>
   <a href="#save-run">Saving &amp; Running</a>
-  <a href="#import">Import from Core Agents</a>
-  <h4>Navigation</h4>
+  <a href="#import">CoreAgents Import</a>
+  <a href="#grounding">Grounding Context</a>
+  <h4>Interface</h4>
   <a href="#canvas-nav">Canvas Navigation</a>
-  <a href="#file-io">File I/O</a>
+  <a href="#theme">Theme Toggle</a>
+  <a href="#shortcuts">Keyboard Shortcuts</a>
+  <a href="#errors">Error Handling</a>
+  <a href="#ops-console">Ops Console Link</a>
 </nav>
 
 <main class="main">
   <h1>Pipeliner User Guide</h1>
-  <p class="subtitle">Visual pipeline editor for orchestrating AI agent workflows.</p>
+  <p class="subtitle">Visual pipeline editor for orchestrating AI agent workflows. Part of the Monks.Flow platform.</p>
 
-  <h2 id="getting-started">Getting Started</h2>
-  <p>Sign in with your Google account. From the home screen, you can <strong>create a new pipeline</strong> or open an existing one from your saved pipelines list.</p>
-  <div class="card">
-    <div class="icon-row"><span class="material-symbols-outlined">add_circle</span><h3>Create a Pipeline</h3></div>
-    <p>Click <strong>New Pipeline</strong>, enter a name, and you will land on an empty canvas ready for agent nodes.</p>
-  </div>
-
-  <h2 id="agent-palette">The Agent Palette</h2>
-  <p>The left sidebar contains the <strong>agent palette</strong> — a categorized list of agents you can add to your pipeline:</p>
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="overview">Overview</h2>
+  <p>Pipeliner is a drag-and-drop canvas for building creative production workflows. You chain specialized AI agents together -- briefing, strategy, content creation, quality scoring, and delivery -- into an executable pipeline. Each agent has typed input and output ports; connecting them defines the data flow.</p>
+  <p>The application has two primary views:</p>
   <div class="grid-2">
-    <div class="card"><span class="badge badge-blue">I/O Agents</span><p style="margin-top:8px">File Input, File Output, Google Drive, API Endpoint</p></div>
-    <div class="card"><span class="badge badge-green">Creative Agents</span><p style="margin-top:8px">Copywriter, Art Director, Image Generator, Video Generator</p></div>
-    <div class="card"><span class="badge badge-yellow">Operational Agents</span><p style="margin-top:8px">Strategist, Researcher, Quality Scorer, Compliance</p></div>
+    <div class="card">
+      <div class="icon-row"><span class="material-symbols-outlined">view_list</span><h3>Workflow List</h3></div>
+      <p>Browse, create, run, and delete your saved workflows. This is the landing page after sign-in.</p>
+    </div>
+    <div class="card">
+      <div class="icon-row"><span class="material-symbols-outlined">account_tree</span><h3>Pipeline Editor</h3></div>
+      <p>The full canvas where you drag agents, wire connections, configure nodes, and execute runs.</p>
+    </div>
   </div>
 
-  <h2 id="adding-nodes">Adding Nodes</h2>
-  <p><strong>Drag</strong> any agent from the palette onto the canvas to create a node. The node appears with input ports on the left and output ports on the right, ready to be connected.</p>
-  <div class="tip">You can also double-click an agent in the palette to add it to the center of the current viewport.</div>
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="workflow-list">Workflow List</h2>
+  <p>The workflow list page is your home screen. It displays all saved workflows as cards in a responsive grid.</p>
 
+  <h3>Creating a Workflow</h3>
+  <p>Click the <strong>New Workflow</strong> button in the page header, or click the dashed <strong>"+ New Workflow"</strong> card in the grid. A new workflow named "Untitled Workflow" is created and the editor opens immediately.</p>
+
+  <h3>Workflow Cards</h3>
+  <p>Each workflow card shows:</p>
+  <ul>
+    <li><strong>Name and description</strong> -- the workflow title and an optional description.</li>
+    <li><strong>Node count</strong> -- how many agent nodes the workflow contains.</li>
+    <li><strong>Last modified date</strong> -- when the workflow was last updated.</li>
+    <li><strong>Color bar</strong> -- a rotating color accent (blue, orange, green, purple, red) for visual distinction.</li>
+  </ul>
+
+  <h3>Card Actions</h3>
+  <p>Each workflow card provides three actions:</p>
+  <ul>
+    <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">play_arrow</span> <strong>Run</strong> -- Start a pipeline execution directly from the list. A snackbar confirms "Workflow run started".</li>
+    <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">edit</span> <strong>Edit</strong> -- Open the workflow in the pipeline editor. You can also click anywhere on the card body.</li>
+    <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">delete_outline</span> <strong>Delete</strong> -- Remove the workflow permanently. A snackbar confirms "Workflow deleted".</li>
+  </ul>
+
+  <h3>Empty State</h3>
+  <p>When no workflows exist, the page shows an illustrated empty state with a prompt to create your first workflow.</p>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="editor-toolbar">Editor Toolbar</h2>
+  <p>The pipeline editor has a glass-style toolbar across the top with three zones:</p>
+
+  <div class="card">
+    <h3>Left Zone</h3>
+    <ul>
+      <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">arrow_back</span> <strong>Back button</strong> -- Returns to the workflow list.</li>
+      <li><strong>Brand mark</strong> -- "Pipeliner" logo with a "Monks.Flow" badge.</li>
+      <li><strong>Workflow name</strong> -- An inline-editable text field. Click to rename; the name saves on blur.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Center Zone</h3>
+    <ul>
+      <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">hub</span> <strong>Node count</strong> -- Live count of nodes currently on the canvas.</li>
+      <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">timeline</span> <strong>Connection count</strong> -- Live count of wires between nodes.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Right Zone</h3>
+    <ul>
+      <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">fit_screen</span> <strong>Fit to Screen</strong> -- Centers and scales the canvas to show all nodes.</li>
+      <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">save</span> <strong>Save</strong> -- Persists the current pipeline state (nodes, edges, positions, canvas viewport).</li>
+      <li><span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">play_arrow</span> <strong>Run</strong> -- Saves the pipeline and then starts execution. Disabled when the canvas has no nodes.</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="agent-palette">Agent Palette</h2>
+  <p>The left sidebar of the editor contains the <strong>agent palette</strong> -- a searchable, categorized library of all available agents. Agents are organized into three collapsible groups:</p>
+
+  <div class="grid-3">
+    <div class="card" style="text-align:center">
+      <span class="badge badge-green">I/O</span>
+      <p style="margin-top:8px;font-size:13px">1 agent<br>Data import/export</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <span class="badge badge-purple">Creative Agents</span>
+      <p style="margin-top:8px;font-size:13px">8 agents<br>Content creation</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <span class="badge badge-blue">Operational Agents</span>
+      <p style="margin-top:8px;font-size:13px">6 agents<br>Planning &amp; QA</p>
+    </div>
+  </div>
+
+  <h3>Searching Agents</h3>
+  <p>The search bar at the top of the palette filters agents in real-time by name or description. The filter applies across all groups simultaneously.</p>
+
+  <h3>Collapsible Groups</h3>
+  <p>Click a group header to expand or collapse that section. The I/O and Creative groups are expanded by default; the Operational group starts collapsed. Each header shows a badge with the agent count for that group.</p>
+
+  <h3>Palette Items</h3>
+  <p>Each agent entry in the palette shows:</p>
+  <ul>
+    <li>A color-coded icon matching its group</li>
+    <li>The agent name and a brief description (truncated to 2 lines)</li>
+    <li>Input/output port count badges (e.g., "2 in", "3 out")</li>
+  </ul>
+  <p>A footer at the bottom reminds you: "Drag agents onto canvas to build workflow."</p>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="adding-nodes">Adding Nodes to the Canvas</h2>
+  <p><strong>Drag</strong> any agent from the palette onto the canvas to create a node. The node appears at the drop position with input ports on the left, output ports on the right, and a colored header matching the agent's group.</p>
+
+  <div class="tip">When the canvas is empty, a centered placeholder shows the Pipeliner logo with three hints: "Drag to add", "Connect ports", and "Configure agents".</div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
   <h2 id="connecting-nodes">Connecting Nodes</h2>
   <p>There are two ways to wire nodes together:</p>
 
@@ -125,71 +242,291 @@ kbd { background: var(--bg-surface); border: 1px solid var(--border-medium); bor
     <div class="icon-row"><span class="material-symbols-outlined">drag_indicator</span><h3>Method 1: Drag-to-Connect</h3></div>
     <div class="step"><div class="step-num">1</div><div class="step-body"><p>Click and hold on an <strong>output port</strong> (right side of a node).</p></div></div>
     <div class="step"><div class="step-num">2</div><div class="step-body"><p>Drag the wire to an <strong>input port</strong> (left side of another node).</p></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-body"><p>Release to create the connection. A colored wire appears between the ports.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><p>Release to create the connection. A bezier curve wire appears between the ports.</p></div></div>
   </div>
 
   <div class="card">
     <div class="icon-row"><span class="material-symbols-outlined">ads_click</span><h3>Method 2: Click-to-Connect</h3></div>
-    <div class="step"><div class="step-num">1</div><div class="step-body"><p><strong>Double-click</strong> a port to arm it. The port shows a <strong>pulsing glow</strong> to indicate it is armed.</p></div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-body"><p>Compatible ports on other nodes <strong>light up</strong> to show valid targets.</p></div></div>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><p><strong>Double-click</strong> a port to "arm" it. The port enlarges and shows a <strong>pulsing glow</strong> animation to indicate it is armed.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><p>All compatible ports on <strong>other nodes</strong> light up with a breathing glow animation, indicating they are valid targets. Ports on the same node do not light up (no self-connections).</p></div></div>
     <div class="step"><div class="step-num">3</div><div class="step-body"><p><strong>Single-click</strong> any highlighted port to complete the wire.</p></div></div>
-    <div class="step" style="opacity:0.7"><div class="step-num" style="background:var(--text-tertiary)">?</div><div class="step-body"><p>Press <kbd>Esc</kbd> to cancel and disarm the port.</p></div></div>
+    <div class="step" style="opacity:0.7"><div class="step-num" style="background:var(--text-tertiary)">?</div><div class="step-body"><p>Press <kbd>Esc</kbd> or click empty canvas space to cancel and disarm the port.</p></div></div>
   </div>
 
+  <p>In click-to-connect mode, the canvas enters a special <strong>connect mode</strong> where node headers and config controls dim and become non-interactive, focusing attention on the ports.</p>
+
+  <div class="warn">Duplicate connections between the same two ports are prevented. If you try to create a wire that already exists, the armed port is simply disarmed.</div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
   <h2 id="node-config">Node Configuration</h2>
-  <p>Each node can be configured after placement:</p>
+  <p>Each node on the canvas can be configured after placement:</p>
   <ul>
-    <li><strong>Change agent type:</strong> Use the dropdown at the top of the node to switch to a different agent.</li>
-    <li><strong>Delete a node:</strong> Click the <strong>X</strong> button in the node's top-right corner, or select the node and press <kbd>Delete</kbd>.</li>
-    <li><strong>Edit parameters:</strong> Click the node body to open its configuration panel on the right side.</li>
+    <li><strong>Change agent type:</strong> Use the <strong>Agent</strong> dropdown below the node header to switch to a different agent. When you change the agent type, all existing connections to the node are removed (since the ports change) and the node's icon, color, and ports update to match the new agent.</li>
+    <li><strong>Rename the workflow:</strong> Edit the workflow name directly in the toolbar's inline text input.</li>
+    <li><strong>Delete a node:</strong> Hover over the node to reveal the <strong>X</strong> button in the header's top-right corner. Clicking it removes the node and all its connections.</li>
+    <li><strong>Move a node:</strong> Drag the colored header bar to reposition the node. Foblex provides snap-to-grid alignment lines during dragging.</li>
   </ul>
 
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
   <h2 id="port-types">Port Types</h2>
-  <p>Ports are typed to indicate what kind of data flows between agents:</p>
-  <ul>
-    <li><strong>string</strong> — Plain text (prompts, briefs, copy)</li>
-    <li><strong>list</strong> — An ordered collection of items</li>
-    <li><strong>dict</strong> — A key-value mapping (structured data)</li>
-    <li><strong>number</strong> — Numeric values (scores, counts)</li>
-    <li><strong>object</strong> — Complex objects (images, video references, documents)</li>
-  </ul>
-  <div class="tip">Ports of incompatible types cannot be connected. The click-to-connect method makes compatible ports easy to identify — only valid targets light up.</div>
+  <p>Ports are typed and display their type in a small uppercase badge. The five port types are:</p>
+  <table>
+    <tr><th>Type</th><th>Description</th><th>Examples</th></tr>
+    <tr><td><code>string</code></td><td>Plain text</td><td>Prompts, briefs, copy, scripts, assessments</td></tr>
+    <tr><td><code>list</code></td><td>Ordered collection of items</td><td>Personas, concepts, assets, copy variations</td></tr>
+    <tr><td><code>dict</code></td><td>Key-value mapping</td><td>Brand config, platform strategy, delivery manifest</td></tr>
+    <tr><td><code>number</code></td><td>Numeric value</td><td>Scores, asset counts, duration, concept index</td></tr>
+    <tr><td><code>object</code></td><td>Complex structured data</td><td>Brief config, production manifest, pipeline outputs</td></tr>
+  </table>
+  <p>Each port also has a <strong>tooltip</strong> describing its purpose. Hover over any port to see the description (tooltips appear to the left for inputs, right for outputs).</p>
 
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="io-agents">I/O Agents</h2>
+  <p>The I/O group contains the agent responsible for importing data into and exporting results from the pipeline.</p>
+
+  <table class="agent-table">
+    <tr><th>Agent</th><th>Description</th><th>Inputs</th><th>Outputs</th></tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#0F9D58;vertical-align:text-bottom">drive_file_move</span> Google Drive</td>
+      <td>Import from or export to Google Drive</td>
+      <td>content (string)</td>
+      <td>text_content (string)</td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="operational-agents">Operational Agents</h2>
+  <p>Operational agents handle planning, quality assurance, optimization, and delivery orchestration.</p>
+
+  <table class="agent-table">
+    <tr><th>Agent</th><th>Description</th><th>Inputs</th><th>Outputs</th></tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#1A73E8;vertical-align:text-bottom">description</span> Briefing</td>
+      <td>Transform unstructured inputs into structured 9-section briefs</td>
+      <td>brief_text (string), brand_config (dict)</td>
+      <td>campaign_objective (string), target_audience (string), key_messages (list), workstream_briefs (list), recommended_pipeline (list), complexity_assessment (string)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#1A73E8;vertical-align:text-bottom">handshake</span> Proposal</td>
+      <td>Generate strategic proposals with territories, timelines, and budgets</td>
+      <td>brief_config (object)</td>
+      <td>strategic_approach (string), territories (list), channels (list), budget_breakdown (list)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#1A73E8;vertical-align:text-bottom">assignment</span> Production Planner</td>
+      <td>Create per-asset production manifests with detailed specifications</td>
+      <td>brief_data (object), creative_concepts (list), strategy (object)</td>
+      <td>manifest_id (string), total_assets (number), assets (list)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#1A73E8;vertical-align:text-bottom">verified</span> Quality Gate</td>
+      <td>Score assets against ABCD framework (Attract, Brand, Connect, Direct)</td>
+      <td>assets (list), brand_config (dict)</td>
+      <td>asset_scores (list), gate_status (string), blocking_issues (list)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#1A73E8;vertical-align:text-bottom">fact_check</span> Producer</td>
+      <td>Final QA, asset validation, and delivery manifest generation</td>
+      <td>pipeline_outputs (object), quality_scores (list)</td>
+      <td>manifest (dict), validation_results (list), qa_summary (string)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#1A73E8;vertical-align:text-bottom">tune</span> Optimizer</td>
+      <td>Analyze assets for creative optimization opportunities</td>
+      <td>assets (list), abcd_evaluations (list)</td>
+      <td>critical_issues (list), high_impact_improvements (list), platform_recommendations (dict)</td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="creative-agents">Creative Agents</h2>
+  <p>Creative agents handle content strategy, ideation, copywriting, and asset generation.</p>
+
+  <table class="agent-table">
+    <tr><th>Agent</th><th>Description</th><th>Inputs</th><th>Outputs</th></tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">person_search</span> Persona</td>
+      <td>Generate detailed micro-personas with psychographics and platform affinity</td>
+      <td>brief_data (object)</td>
+      <td>personas (list)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">psychology</span> Strategy</td>
+      <td>Develop creative strategy frameworks with platform-specific approaches</td>
+      <td>brief_data (object), personas (list)</td>
+      <td>feature_focus (string), thematic_angle (string), platform_strategy (dict), cta_logic (string)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">palette</span> Creative Director</td>
+      <td>Generate scored creative concepts with visual direction and shot lists</td>
+      <td>brief_data (object), strategy (object), personas (list)</td>
+      <td>static_concepts (list), video_concepts (list), selected_concept_index (number)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">edit_note</span> Copy</td>
+      <td>Generate platform-optimized copy -- headlines, body, CTAs per platform</td>
+      <td>strategy_brief (object), brand_config (dict), platforms (list), languages (list)</td>
+      <td>copy_variations (list)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">movie_creation</span> Storyboard</td>
+      <td>Generate visual storyboards with frame-by-frame direction</td>
+      <td>creative_direction (object), storyboard_type (string)</td>
+      <td>storyboard_frames (list), total_duration_seconds (number)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">image</span> Image</td>
+      <td>Generate campaign images via Imagen 4 with platform-specific formats</td>
+      <td>production_manifest (object), strategy_brief (object)</td>
+      <td>generated_images (list)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">videocam</span> Video</td>
+      <td>Produce video via Veo 3.1 -- 7 sub-agents for full production pipeline</td>
+      <td>strategy_brief (object), brand_config (dict), video_config (dict)</td>
+      <td>video_assets (list), concept (dict), script (string)</td>
+    </tr>
+    <tr>
+      <td><span class="material-symbols-outlined" style="font-size:16px;color:#9334E6;vertical-align:text-bottom">mic</span> Audio</td>
+      <td>Generate voiceovers (5 voices) and background music, mix audio tracks</td>
+      <td>copy_data (object), creative_direction (object)</td>
+      <td>voice_assets (list), music_assets (list), mixed_audio (list)</td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="google-drive">Google Drive Node</h2>
+  <p>The Google Drive node operates in two modes depending on how it is wired:</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="icon-row"><span class="material-symbols-outlined" style="color:#0F9D58">cloud_download</span><h3>Pull Mode (Import)</h3></div>
+      <p>When the Google Drive node's <strong>output port</strong> (<code>text_content</code>) is connected downstream, the node imports a file from Google Drive. The backend calls the Drive API with the user's OAuth access token, downloads the file, and extracts the text content. Supported formats include Google Docs, PDFs, DOCX, and plain text files.</p>
+    </div>
+    <div class="card">
+      <div class="icon-row"><span class="material-symbols-outlined" style="color:#0F9D58">cloud_upload</span><h3>Push Mode (Export)</h3></div>
+      <p>When the Google Drive node's <strong>input port</strong> (<code>content</code>) receives data from upstream agents, the node exports results to a Google Doc in the user's Drive. The pipeline output is formatted and written as a document.</p>
+    </div>
+  </div>
+
+  <div class="tip">The Google Drive node uses the same OAuth token from your Google sign-in. Files are imported from and exported to your personal Google Drive.</div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
   <h2 id="save-run">Saving &amp; Running</h2>
+
   <div class="grid-2">
     <div class="card">
       <div class="icon-row"><span class="material-symbols-outlined">save</span><h3>Save</h3></div>
-      <p>Click the <strong>Save</strong> button in the toolbar to persist your pipeline to the database. Pipelines auto-save on significant changes, but manual saves ensure nothing is lost.</p>
+      <p>Click the <strong>Save</strong> button in the toolbar to persist the pipeline to the database. The full graph state is serialized: node positions, agent configurations, edge connections, canvas position, and zoom scale. A snackbar confirms "Workflow saved".</p>
     </div>
     <div class="card">
       <div class="icon-row"><span class="material-symbols-outlined">play_arrow</span><h3>Run</h3></div>
-      <p>Click <strong>Run</strong> to execute the pipeline. Nodes execute in topological order — each node waits for its inputs before firing. Progress is shown with animated borders on active nodes.</p>
+      <p>Click <strong>Run</strong> to execute the pipeline. The workflow is automatically saved first, then execution begins. Nodes execute in topological order -- each agent waits for its input data before running. A snackbar confirms the run status.</p>
     </div>
   </div>
 
-  <h2 id="import">Import from Core Agents</h2>
-  <p>When working in Core Agents, use the <strong>"Send to Pipeline"</strong> button to export a session's agent manifest. This opens Pipeliner with the pipeline pre-populated:</p>
-  <ul>
-    <li>Agents appear as nodes on the canvas, already wired in execution order.</li>
-    <li>You can reconfigure, add, or remove nodes before running.</li>
-    <li>The imported manifest preserves agent parameters and context from the Core Agents session.</li>
-  </ul>
+  <p>You can also run a workflow directly from the <strong>workflow list page</strong> without opening the editor -- click the Run button on any workflow card.</p>
 
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="import">Import from CoreAgents</h2>
+  <p>Pipeliner integrates with the <strong>CoreAgents</strong> platform. When you use "Send to Pipeline" in a CoreAgents session, the browser opens Pipeliner with special query parameters:</p>
+
+  <div class="card">
+    <h3>Manifest Handoff Flow</h3>
+    <div class="step"><div class="step-num">1</div><div class="step-body"><p>CoreAgents redirects to Pipeliner with <code>source=core-agents</code>, <code>session_id=...</code>, and <code>manifest=ready</code> in the URL.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><p>Pipeliner detects these parameters and shows a <strong>confirmation dialog</strong> asking: "A manifest is ready from CoreAgents session. Import it to create a new workflow pre-configured with agent outputs?"</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><p>Click <strong>Import</strong> to proceed. Pipeliner fetches the manifest from the CoreAgents API, creates a new workflow, and opens the editor with nodes pre-populated.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><p>Click <strong>Cancel</strong> to dismiss. The query parameters are cleared either way.</p></div></div>
+  </div>
+
+  <h3>What the Manifest Contains</h3>
+  <p>A CoreAgents manifest includes:</p>
+  <ul>
+    <li><strong>Session ID and title</strong> -- used to name the imported workflow.</li>
+    <li><strong>Agent outputs</strong> -- key-value pairs of each agent's generated content from the session.</li>
+    <li><strong>Grounding documents</strong> -- uploaded files with URIs, signed URLs, MIME types, and optionally extracted text content.</li>
+    <li><strong>Conversations</strong> -- chat history from the CoreAgents session (optional).</li>
+    <li><strong>Timestamps</strong> -- creation and last-updated times.</li>
+  </ul>
+  <p>After import, you can reconfigure, add, or remove nodes before running the pipeline.</p>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="grounding">Grounding Context</h2>
+  <p>Grounding context refers to documents and files that provide real-world data for agents to reference during execution.</p>
+  <ul>
+    <li><strong>Upload files</strong> -- Use the backend's <code>/io/upload</code> endpoint to upload local files (PDF, DOCX, images, video). Uploaded files are parsed and their text content is extracted for agent consumption.</li>
+    <li><strong>Import from Google Drive</strong> -- Use the <code>/io/import-drive</code> endpoint or wire a Google Drive node in pull mode to bring Drive files into the pipeline as grounding documents.</li>
+    <li><strong>Flow into agents</strong> -- Grounding docs are injected into the agent execution context. When imported from a CoreAgents manifest, the grounding documents carry their extracted text content, signed URLs, and metadata so agents can reference the source material.</li>
+  </ul>
+  <div class="tip">Grounding documents give agents factual context -- brand guidelines, campaign briefs, competitive analyses -- that grounds their output in real data rather than relying solely on their training.</div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
   <h2 id="canvas-nav">Canvas Navigation</h2>
+  <p>The pipeline canvas uses the <strong>Foblex Flow</strong> library for an interactive, zoomable, pannable workspace.</p>
   <ul>
-    <li><strong>Zoom:</strong> Scroll wheel to zoom in/out.</li>
-    <li><strong>Pan:</strong> Click and drag on empty canvas space to pan.</li>
-    <li><strong>Fit to screen:</strong> Press <kbd>Ctrl/Cmd + 0</kbd> or use the fit button in the toolbar to center all nodes in view.</li>
-    <li><strong>Select multiple:</strong> Hold <kbd>Shift</kbd> and drag to create a selection box.</li>
+    <li><strong>Zoom:</strong> Scroll the mouse wheel to zoom in and out. Zoom range is <strong>0.3x to 2.0x</strong>.</li>
+    <li><strong>Pan:</strong> Click and drag on empty canvas space to pan the viewport.</li>
+    <li><strong>Fit to Screen:</strong> Click the <span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">fit_screen</span> button in the toolbar to auto-center and scale the canvas so all nodes are visible (with 50px padding).</li>
+    <li><strong>Selection area:</strong> Drag on the canvas to create a rectangular selection box to select multiple nodes at once.</li>
+    <li><strong>Alignment guides:</strong> When dragging nodes, alignment lines appear to help you snap nodes to grid positions.</li>
+    <li><strong>Dot-grid background:</strong> The canvas shows a subtle circle-pattern grid that moves with zoom and pan for spatial orientation.</li>
   </ul>
 
-  <h2 id="file-io">File I/O</h2>
-  <p>File nodes allow data to enter and leave the pipeline:</p>
-  <ul>
-    <li><strong>Upload files:</strong> Use a File Input node to upload local files (PDF, DOCX, images, video).</li>
-    <li><strong>Google Drive import:</strong> Connect a Google Drive node and select files from your drive.</li>
-    <li><strong>Export to Google Docs:</strong> Use a File Output node configured for Google Docs to write pipeline results as a formatted document.</li>
-  </ul>
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="theme">Theme Toggle</h2>
+  <p>Pipeliner supports three theme modes, toggled by clicking the theme button in the <strong>top bar</strong> of the shell (the application frame visible on all pages).</p>
+
+  <div class="grid-3">
+    <div class="card" style="text-align:center">
+      <span class="material-symbols-outlined" style="font-size:28px;color:var(--yellow)">light_mode</span>
+      <p style="margin-top:8px"><strong>Light</strong></p>
+      <p style="font-size:13px">White backgrounds, dark text. Default for most users.</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <span class="material-symbols-outlined" style="font-size:28px;color:#7B68EE">dark_mode</span>
+      <p style="margin-top:8px"><strong>Dark</strong></p>
+      <p style="font-size:13px">Dark backgrounds, light text. Sets <code>data-theme="dark"</code> on the document.</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <span class="material-symbols-outlined" style="font-size:28px;color:var(--text-tertiary)">routine</span>
+      <p style="margin-top:8px"><strong>System</strong></p>
+      <p style="font-size:13px">Follows your operating system's light/dark preference automatically.</p>
+    </div>
+  </div>
+
+  <p>The toggle cycles through <strong>Light &rarr; Dark &rarr; System &rarr; Light</strong>. Your preference is saved to <code>localStorage</code> under the key <code>pipeliner-theme</code> and persists across sessions. In System mode, the theme reacts live to OS-level dark mode changes.</p>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="shortcuts">Keyboard Shortcuts</h2>
+  <table>
+    <tr><th>Shortcut</th><th>Action</th></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Disarm an armed port (cancel click-to-connect mode)</td></tr>
+  </table>
+  <p>Mouse actions: hover over the node header's X button to reveal the delete control; double-click a port to arm it; single-click a highlighted port to complete a connection.</p>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="errors">Error Handling</h2>
+  <p>Pipeliner uses <strong>Material snackbar notifications</strong> to communicate success and failure states. Snackbars appear at the bottom of the screen and auto-dismiss after a few seconds.</p>
+
+  <table>
+    <tr><th>Action</th><th>Success Message</th><th>Error Message</th></tr>
+    <tr><td>Save workflow</td><td>"Workflow saved"</td><td>"Failed to save"</td></tr>
+    <tr><td>Run workflow</td><td>"Run started (status)"</td><td>"Failed to start run"</td></tr>
+    <tr><td>Delete workflow</td><td>"Workflow deleted"</td><td>"Failed to delete workflow"</td></tr>
+    <tr><td>Create workflow</td><td>(navigates to editor)</td><td>"Failed to create workflow"</td></tr>
+    <tr><td>Load workflow</td><td>(loads normally)</td><td>"Failed to load workflow"</td></tr>
+    <tr><td>Update name</td><td>(silent success)</td><td>"Failed to update name"</td></tr>
+    <tr><td>Import manifest</td><td>"Imported &laquo;name&raquo;"</td><td>"Failed to fetch manifest from CoreAgents" or "Failed to create workflow from manifest"</td></tr>
+    <tr><td>Run from list</td><td>"Workflow run started"</td><td>"Failed to start run"</td></tr>
+  </table>
+
+  <p>Error snackbars include a <strong>Dismiss</strong> button and display for 3-4 seconds. Success snackbars auto-dismiss in 2-3 seconds.</p>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <h2 id="ops-console">Ops Console Link</h2>
+  <p>The top bar of the application shell includes an <strong>Ops Console</strong> link in the upper right, next to the theme toggle button. Clicking it opens the Ops Console application (<code>https://opsagent.mf4g.studio</code>) in a new browser tab. This provides quick navigation between Pipeliner and the broader Monks.Flow operations platform.</p>
+  <p>The link shows a <span class="material-symbols-outlined" style="font-size:16px;vertical-align:text-bottom">hub</span> icon, the text "Ops Console", and a small <span class="material-symbols-outlined" style="font-size:14px;vertical-align:text-bottom">open_in_new</span> external link indicator.</p>
+
 </main>
 
 <script>
