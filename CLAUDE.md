@@ -4,7 +4,7 @@
 
 A standalone visual pipeline builder for Monks.Flow agent orchestration. Users drag AI agents onto a canvas, connect them into DAGs, and run them. The Pipeliner dispatches agents to CoreAgents over HTTP — it never hosts agents itself.
 
-**Production URL:** `https://pipeline.mf4g.studio`
+**Production URL:** `https://pipeliner-app-coluam67dq-uc.a.run.app` (eventually `https://pipeline.mf4g.studio`)
 **Parent org:** MediaMonks (Firewood Marketing Inc. dba MediaMonks), contracted to Google under ISA 835441 / MSOW #980608.
 
 ## Project Structure
@@ -60,7 +60,7 @@ gcloud builds submit --config=cloudbuild.yaml --project=meekerexperiments
 - **IAP auth only** — No Firebase Auth. IAP handles login, session cookies, access control. `x-goog-authenticated-user-email` header for user identity.
 - **Agents live in CoreAgents** — This app dispatches to CoreAgents `POST /v1/dispatch`. It never imports agent code or runs models locally.
 - **Spanner for storage** — Same instance as Ops Console (`innovation-graph` / `innovation`). 3 tables: `ops_pipeline_templates`, `ops_pipeline_runs`, `ops_pipeline_node_runs`.
-- **JSON in Spanner** — Nodes, edges, inputs, outputs stored as `STRING(MAX)` with `json.dumps`/`json.loads` at the service layer.
+- **JSON in Spanner** — Nodes, edges, inputs, outputs use native `JSON` columns. On read, the Spanner client returns `JsonObject` (a dict subclass) — use `.serialize()` + `json.loads()` to get plain Python. On write, `json.dumps()` is required because the mutation API doesn't accept raw dicts/lists.
 - **Grounding context** — Uploaded docs and Drive imports become `grounding_docs` in run inputs. Executor concatenates text and injects as `brief_context` in every agent dispatch.
 - **Access tokens are ephemeral** — User's Google OAuth token passed per-request for Drive operations. Never stored. Filtered from agent dispatch payloads.
 - **50K char cap** — All text extraction (file upload, Drive pull) truncates at 50,000 characters to keep agent payloads within context limits.

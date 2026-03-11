@@ -3,7 +3,7 @@
 ## Base URL
 
 - **Local:** `http://localhost:8000`
-- **Production:** `https://pipeline.mf4g.studio` (via nginx reverse proxy on `/api`)
+- **Production:** `https://pipeliner-app-coluam67dq-uc.a.run.app` (via nginx reverse proxy on `/api`; eventually `https://pipeline.mf4g.studio`)
 
 ## Authentication
 

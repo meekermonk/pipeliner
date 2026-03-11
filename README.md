@@ -2,7 +2,7 @@
 
 Visual pipeline builder for Monks.Flow agent orchestration. A drag-and-drop DAG editor that chains AI agents into creative production workflows — concepting, asset generation, resizing, translations, and delivery — and dispatches them to CoreAgents for execution.
 
-**Production URL:** `https://pipeline.mf4g.studio`
+**Production URL:** `https://pipeliner-app-coluam67dq-uc.a.run.app` (eventually `https://pipeline.mf4g.studio`)
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Agents are stateful, GPU-hungry, and change frequently. The Pipeliner is a thin 
 Both the Pipeliner and CoreAgents are internal tools for `mediamonks.com` users. IAP provides authentication at the infrastructure layer — no client-side OAuth flow, no token refresh logic, no auth state management. The frontend sends `credentials: 'include'` and IAP cookies handle the rest. Row-level security uses `x-goog-authenticated-user-email` from IAP headers.
 
 **Why Spanner (not Firestore or Postgres)?**
-The Ops Console and CoreAgents already use the same Spanner instance (`innovation-graph` / `innovation` database). Sharing the instance avoids provisioning overhead and allows future cross-app queries. Pipeline templates store nodes and edges as JSON columns — Spanner handles this via `STRING(MAX)` with application-level JSON serialization.
+The Ops Console and CoreAgents already use the same Spanner instance (`innovation-graph` / `innovation` database). Sharing the instance avoids provisioning overhead and allows future cross-app queries. Pipeline templates store nodes and edges as native `JSON` columns. The Python client returns `JsonObject` (a dict subclass) on read, which needs `.serialize()` + `json.loads()` to convert to plain Python. `json.dumps()` is still required on write because the mutation API doesn't accept raw Python dicts/lists.
 
 **Why Foblex Flow for the editor?**
 Foblex provides a production-ready node-graph canvas with drag-from-palette, magnetic connections, zoom/pan, and serialization. Alternatives (ReactFlow, Angular-native solutions) either require React or lack the palette `fExternalItem` directive that enables dragging new nodes from a sidebar onto the canvas. Foblex's `FCreateNodeEvent.rect` gives exact drop coordinates, critical for a visual builder.
@@ -85,7 +85,7 @@ pipeliner/
 ├── ui/                           Angular frontend
 │   └── src/app/
 │       ├── pipeline/
-│       │   ├── pipeline-editor.component.ts   Foblex canvas, 14+ agent nodes
+│       │   ├── pipeline-editor.component.ts   Foblex canvas, 19 agent nodes
 │       │   ├── pipeline-list.component.ts     Template grid, CRUD, run trigger
 │       │   └── pipeline-shell.component.ts    Glass topbar, theme toggle
 │       └── services/
@@ -191,10 +191,10 @@ The Pipeliner fetches the manifest (`GET /v1/sessions/{id}/manifest`), extracts 
 ```bash
 gcloud builds submit --config=cloudbuild.yaml \
   --project=meekerexperiments \
-  --substitutions=SHORT_SHA=$(git rev-parse --short HEAD)
+  --substitutions=_TAG=$(git rev-parse --short HEAD)
 ```
 
-Deploys a combined container (nginx:8080 + uvicorn:8000 via supervisord) to Cloud Run at `https://pipeline.mf4g.studio`. Same pattern as CoreAgents.
+Deploys a combined container (nginx:8080 + uvicorn:8000 via supervisord) to Cloud Run with IAP auth (`--no-allow-unauthenticated`) at `https://pipeliner-app-coluam67dq-uc.a.run.app`. Same pattern as CoreAgents.
 
 ### Environment Variables
 

@@ -149,12 +149,12 @@ All three tables live in the `innovation` database on the `innovation-graph` Spa
 -- Template: a saved workflow graph
 ops_pipeline_templates
   template_id   STRING(36) PK    -- UUID
-  name          STRING(255)
+  name          STRING(256)
   description   STRING(MAX)
-  nodes         STRING(MAX)       -- JSON: [{id, type, configuration, metadata}]
-  edges         STRING(MAX)       -- JSON: [{from_node, to_node, out, inp, optional}]
-  graph_metadata STRING(MAX)      -- JSON: viewport position, zoom level, etc.
-  created_by    STRING(255)       -- email from IAP header
+  nodes         JSON              -- [{id, type, configuration, metadata}]
+  edges         JSON              -- [{from_node, to_node, out, inp, optional}]
+  graph_metadata JSON             -- viewport position, zoom level, etc.
+  created_by    STRING(256)       -- email from IAP header
   created_at    TIMESTAMP         -- COMMIT_TIMESTAMP
   updated_at    TIMESTAMP         -- COMMIT_TIMESTAMP
 
@@ -162,12 +162,12 @@ ops_pipeline_templates
 ops_pipeline_runs
   run_id        STRING(36) PK
   template_id   STRING(36)        -- FK to templates (application-level)
-  status        STRING(20)        -- pending | running | paused | completed | failed
-  inputs        STRING(MAX)       -- JSON: grounding_docs, access_token, etc.
-  outputs       STRING(MAX)       -- JSON: final aggregated outputs
-  node_runs     STRING(MAX)       -- JSON: per-node execution records
+  status        STRING(32)        -- pending | running | paused | completed | failed
+  inputs        JSON              -- grounding_docs, access_token, etc.
+  outputs       JSON              -- final aggregated outputs
+  node_runs     JSON              -- per-node execution records
   error         STRING(MAX)
-  created_by    STRING(255)
+  created_by    STRING(256)
   started_at    TIMESTAMP
   completed_at  TIMESTAMP
   created_at    TIMESTAMP
@@ -177,18 +177,18 @@ ops_pipeline_runs
 ops_pipeline_node_runs
   node_run_id   STRING(36) PK
   run_id        STRING(36)
-  node_id       STRING(255)       -- matches node.id in template
-  agent_id      STRING(255)       -- CoreAgents agent identifier
-  status        STRING(20)        -- pending | running | completed | failed | skipped
-  inputs        STRING(MAX)       -- JSON: what was sent to the agent
-  outputs       STRING(MAX)       -- JSON: what the agent returned
+  node_id       STRING(256)       -- matches node.id in template
+  agent_id      STRING(128)       -- CoreAgents agent identifier
+  status        STRING(32)        -- pending | running | completed | failed | skipped
+  inputs        JSON              -- what was sent to the agent
+  outputs       JSON              -- what the agent returned
   error         STRING(MAX)
   started_at    TIMESTAMP
   completed_at  TIMESTAMP
 ```
 
-**Why JSON in STRING(MAX) instead of Spanner's native JSON type?**
-The Spanner JSON type was added relatively recently and the existing Ops Console codebase uses STRING(MAX) with application-level serialization. Consistency with the existing schema takes precedence over using the native type. The tradeoff: no server-side JSON path queries, but we don't need them — all JSON manipulation happens in Python.
+**Native JSON columns with Python serialization layer.**
+The DDL uses Spanner's native `JSON` type (see `migrations/001_pipeline_tables.sql`). On read, the Python Spanner client (>= 3.x) returns `JsonObject` — a dict subclass that requires `.serialize()` + `json.loads()` to convert to plain Python types. On write, `json.dumps()` is still required because the mutation API doesn't accept raw Python dicts/lists. This serialize/deserialize layer lives in `spanner.py` and must not be removed.
 
 ## Agent Registry
 
@@ -199,25 +199,25 @@ The canonical agent list lives in CoreAgents. The Pipeliner consumes it two ways
 
 UI-specific metadata (Material icons, hex colors, group labels, display order) is mapped client-side by agent ID. This keeps the repos independent.
 
-**Current agents (14 content + operational):**
+**Current agents (19 total: 1 I/O, 10 content, 8 operational):**
 
 | Agent | Group | Purpose |
 |-------|-------|---------|
-| Creative Director | content | Campaign concepting and creative direction |
-| Strategist | content | Brand strategy and audience insights |
-| Social Media | content | Social media content and calendars |
-| Copywriter | content | Campaign copy and messaging |
-| Art Director | content | Visual direction and asset specs |
-| Video Producer | content | Video production planning |
-| Presentation | content | Slide deck generation |
-| Media Planner | content | Media channel strategy |
-| Briefing | operational | Brief analysis and structuring |
-| QA Reviewer | operational | Quality review and feedback |
-| Delivery Manager | operational | Timeline and deliverable tracking |
-| Localisation | operational | Translation and cultural adaptation |
-| Compliance | operational | Policy and guideline adherence |
-| Producer | operational | Production management |
 | Google Drive | io | Import from / export to Google Drive |
+| Persona | content | Micro-persona generation with psychographics |
+| Strategy | content | Creative strategy frameworks and platform approaches |
+| Creative Director | content | Scored creative concepts with visual direction |
+| Copy | content | Platform-optimized copy — headlines, body, CTAs |
+| Storyboard | content | Frame-by-frame visual storyboards |
+| Image | content | Campaign image generation via Imagen 4 |
+| Video | content | Video production via Veo 3.1 (7 sub-agents) |
+| Audio | content | Voiceovers, background music, audio mixing |
+| Briefing | operational | Transform unstructured inputs into structured briefs |
+| Proposal | operational | Strategic proposals with territories and budgets |
+| Production Planner | operational | Per-asset production manifests |
+| Quality Gate | operational | ABCD framework scoring (Attract, Brand, Connect, Direct) |
+| Producer | operational | Final QA, asset validation, delivery manifests |
+| Optimizer | operational | Creative optimization analysis |
 
 ## File I/O System
 
