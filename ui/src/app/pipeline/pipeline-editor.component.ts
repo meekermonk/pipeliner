@@ -417,6 +417,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
               </f-background>
               <f-line-alignment></f-line-alignment>
               <f-selection-area></f-selection-area>
+              <f-connection-for-create></f-connection-for-create>
 
               @for (node of nodes; track node.id) {
                 <div
@@ -1034,12 +1035,12 @@ export class PipelineEditorComponent implements OnInit {
   }
 
   onConnectionCreated(event: FCreateConnectionEvent): void {
-    if (!event.targetId) return;
+    if (!event.fInputId) return;
     this.edgeCounter++;
     this.edges = [...this.edges, {
       id: `edge-${Date.now()}-${this.edgeCounter}`,
-      outputId: event.sourceId,
-      inputId: event.targetId,
+      outputId: event.fOutputId,
+      inputId: event.fInputId,
     }];
     this.cdr.markForCheck();
   }
