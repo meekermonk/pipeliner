@@ -475,6 +475,10 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                       @for (inp of getAgentDef(node.agentId)?.inputs || []; track inp.name) {
                         <div
                           class="io-port"
+                          fNodeInput
+                          [fInputId]="'in-' + node.id + '-' + inp.name"
+                          fInputConnectableSide="left"
+                          [fInputMultiple]="true"
                           [class.port-row-armed]="armedPortId === 'in-' + node.id + '-' + inp.name"
                           [class.port-row-receivable]="isPortReceivable('in-' + node.id + '-' + inp.name, 'input')"
                           [matTooltip]="inp.description"
@@ -482,13 +486,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                           (mousedown)="onPortMouseDown('in-' + node.id + '-' + inp.name, 'input', $event)"
                           (click)="onPortClick('in-' + node.id + '-' + inp.name, 'input', $event)"
                         >
-                          <div
-                            class="port port-input"
-                            fNodeInput
-                            [fInputId]="'in-' + node.id + '-' + inp.name"
-                            fInputConnectableSide="left"
-                            [fInputMultiple]="true"
-                          ></div>
+                          <div class="port port-input"></div>
                           <span class="port-name">{{ inp.name }}</span>
                           <span class="port-type">{{ inp.type }}</span>
                         </div>
@@ -499,6 +497,9 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                       @for (out of getAgentDef(node.agentId)?.outputs || []; track out.name) {
                         <div
                           class="io-port"
+                          fNodeOutput
+                          [fOutputId]="'out-' + node.id + '-' + out.name"
+                          fOutputConnectableSide="right"
                           [class.port-row-armed]="armedPortId === 'out-' + node.id + '-' + out.name"
                           [class.port-row-receivable]="isPortReceivable('out-' + node.id + '-' + out.name, 'output')"
                           [matTooltip]="out.description"
@@ -508,12 +509,7 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                         >
                           <span class="port-type">{{ out.type }}</span>
                           <span class="port-name">{{ out.name }}</span>
-                          <div
-                            class="port port-output"
-                            fNodeOutput
-                            [fOutputId]="'out-' + node.id + '-' + out.name"
-                            fOutputConnectableSide="right"
-                          ></div>
+                          <div class="port port-output"></div>
                         </div>
                       }
                     </div>
@@ -1026,6 +1022,7 @@ export class PipelineEditorComponent implements OnInit {
   armedPortId: string | null = null;
   armedPortDirection: 'input' | 'output' | null = null;
   private handledByMouseDown = false; // guard against mousedown+click double-fire
+  private mouseDownPos: { x: number; y: number } | null = null; // track drag vs click
 
   private template: any = null;
   private nodeCounter = 0;
@@ -1165,6 +1162,7 @@ export class PipelineEditorComponent implements OnInit {
 
   /** Intercept mousedown on port rows to prevent Foblex drag from eating our click */
   onPortMouseDown(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
+    this.mouseDownPos = { x: event.clientX, y: event.clientY };
     if (this.armedPortId) {
       // In connect mode — prevent Foblex from starting a drag
       event.stopPropagation();
@@ -1182,6 +1180,14 @@ export class PipelineEditorComponent implements OnInit {
     if (this.handledByMouseDown) {
       this.handledByMouseDown = false;
       return;
+    }
+
+    // Guard: if mouse moved significantly since mousedown, it was a drag not a click
+    if (this.mouseDownPos) {
+      const dx = event.clientX - this.mouseDownPos.x;
+      const dy = event.clientY - this.mouseDownPos.y;
+      this.mouseDownPos = null;
+      if (dx * dx + dy * dy > 25) return; // >5px movement = drag
     }
 
     // If no port is armed, arm this one
