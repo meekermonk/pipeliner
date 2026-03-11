@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { ThemeService } from '../services/theme.service';
 import { EmbedBridgeService } from '../services/embed-bridge.service';
@@ -160,27 +161,36 @@ import { EmbedBridgeService } from '../services/embed-bridge.service';
     }
   `],
 })
-export class PipelineShellComponent implements OnInit {
+export class PipelineShellComponent implements OnInit, OnDestroy {
   theme = inject(ThemeService);
   readonly embedBridge = inject(EmbedBridgeService);
+  private bridgeSub = new Subscription();
 
   ngOnInit(): void {
     if (this.embedBridge.isEmbedded) {
-      this.embedBridge.on('INIT').pipe(take(1)).subscribe(() => {
-        this.embedBridge.sendToParent('TOOL_READY', {
-          tool: 'pipeline',
-          embedded: true,
-          protocol_version: 1,
-        });
-      });
+      this.bridgeSub.add(
+        this.embedBridge.on('INIT').pipe(take(1)).subscribe(() => {
+          this.embedBridge.sendToParent('TOOL_READY', {
+            tool: 'pipeline',
+            embedded: true,
+            protocol_version: 1,
+          });
+        })
+      );
 
-      this.embedBridge.on('SYNC_REQUEST').subscribe(() => {
-        this.embedBridge.consumeDirty();
-        this.embedBridge.sendToParent('SYNC_RESPONSE', {
-          manifest_data: null,
-        });
-      });
+      this.bridgeSub.add(
+        this.embedBridge.on('SYNC_REQUEST').subscribe(() => {
+          this.embedBridge.consumeDirty();
+          this.embedBridge.sendToParent('SYNC_RESPONSE', {
+            manifest_data: null,
+          });
+        })
+      );
     }
+  }
+
+  ngOnDestroy(): void {
+    this.bridgeSub.unsubscribe();
   }
 
   themeIcon(): string {
