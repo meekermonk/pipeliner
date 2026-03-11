@@ -907,19 +907,26 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
 
     .port {
       position: absolute;
-      width: 10px; height: 10px; border-radius: 50%;
+      width: 12px; height: 12px; border-radius: 50%;
       top: 50%; transform: translateY(-50%);
       border: 2px solid var(--ca-surface);
       background: var(--node-color);
       z-index: 1;
       transition: all 120ms var(--ca-ease-spring);
+      /* Invisible hit area extension for easier drag-to-connect */
+      &::after {
+        content: '';
+        position: absolute;
+        top: -8px; left: -8px; right: -8px; bottom: -8px;
+        border-radius: 50%;
+      }
       &:hover {
-        width: 14px; height: 14px;
+        width: 16px; height: 16px;
         box-shadow: 0 0 0 3px var(--node-color-glow);
       }
     }
-    .port-input { left: -6px; }
-    .port-output { right: -6px; }
+    .port-input { left: -7px; }
+    .port-output { right: -7px; }
 
     /* ═══ Click-to-Connect States ═══ */
 
@@ -989,8 +996,9 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
 
     /* ═══ Foblex overrides ═══ */
     ::ng-deep {
-      .f-connection path { stroke: rgba(255,255,255,0.15); stroke-width: 2; fill: none; }
+      .f-connection path, f-connection-for-create path { stroke: rgba(255,255,255,0.15); stroke-width: 2; fill: none; }
       .f-connection:hover path, .f-connection.f-selected path { stroke: var(--color-primary); stroke-width: 2.5; }
+      f-connection-for-create path { stroke: rgba(255,255,255,0.4); stroke-width: 2; stroke-dasharray: 6 4; }
       f-circle-pattern circle { fill: rgba(255,255,255,0.08); r: 1; }
     }
   `],
@@ -1017,6 +1025,7 @@ export class PipelineEditorComponent implements OnInit {
   // Click-to-connect state
   armedPortId: string | null = null;
   armedPortDirection: 'input' | 'output' | null = null;
+  private handledByMouseDown = false; // guard against mousedown+click double-fire
 
   private template: any = null;
   private nodeCounter = 0;
@@ -1160,6 +1169,7 @@ export class PipelineEditorComponent implements OnInit {
       // In connect mode — prevent Foblex from starting a drag
       event.stopPropagation();
       event.preventDefault();
+      this.handledByMouseDown = true;
       this.onPortClick(portId, direction, event);
     }
   }
@@ -1167,6 +1177,12 @@ export class PipelineEditorComponent implements OnInit {
   onPortClick(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
+
+    // Guard: if mousedown already handled this interaction, skip the click
+    if (this.handledByMouseDown) {
+      this.handledByMouseDown = false;
+      return;
+    }
 
     // If no port is armed, arm this one
     if (!this.armedPortId) {
