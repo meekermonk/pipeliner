@@ -39,35 +39,3 @@ app.include_router(io_router)
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "pipeliner"}
-
-
-@app.get("/api/debug/spanner-types/{template_id}")
-async def debug_spanner_types(template_id: str):
-    """Temporary debug endpoint to inspect raw Spanner return types."""
-    import asyncio
-    from google.cloud import spanner as sp
-    from src.services.spanner import spanner_service
-
-    cols = sorted(["template_id", "nodes", "edges", "graph_metadata"])
-
-    def _read():
-        with spanner_service.db.snapshot() as snapshot:
-            rows = list(snapshot.read(
-                "ops_pipeline_templates",
-                columns=cols,
-                keyset=sp.KeySet(keys=[[template_id]]),
-            ))
-        return rows
-
-    rows = await asyncio.to_thread(_read)
-    if not rows:
-        return {"error": "not found"}
-
-    debug = {}
-    for col, val in zip(cols, rows[0]):
-        debug[col] = {
-            "python_type": type(val).__name__,
-            "repr": repr(val)[:500],
-            "is_str": isinstance(val, str),
-        }
-    return debug

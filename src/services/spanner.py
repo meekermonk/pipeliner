@@ -112,7 +112,12 @@ class SpannerService:
         result: dict = {}
         for col, val in zip(columns, row):
             if col in json_cols and val is not None:
-                if isinstance(val, str):
+                # Spanner client >= 3.x returns JsonObject (a dict subclass)
+                # for native JSON columns. Use serialize() to get the JSON
+                # string, then parse to plain Python types.
+                if hasattr(val, 'serialize'):
+                    val = json.loads(val.serialize())
+                elif isinstance(val, str):
                     try:
                         val = json.loads(val)
                     except (json.JSONDecodeError, TypeError):
