@@ -473,17 +473,20 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                     <div class="io-section io-inputs">
                       <span class="io-label">INPUTS</span>
                       @for (inp of getAgentDef(node.agentId)?.inputs || []; track inp.name) {
-                        <div class="io-port" [matTooltip]="inp.description" matTooltipPosition="left">
+                        <div
+                          class="io-port"
+                          [class.port-row-armed]="armedPortId === 'in-' + node.id + '-' + inp.name"
+                          [class.port-row-receivable]="isPortReceivable('in-' + node.id + '-' + inp.name, 'input')"
+                          [matTooltip]="inp.description"
+                          matTooltipPosition="left"
+                          (click)="onPortClick('in-' + node.id + '-' + inp.name, 'input', $event)"
+                        >
                           <div
                             class="port port-input"
-                            [class.port-armed]="armedPortId === 'in-' + node.id + '-' + inp.name"
-                            [class.port-receivable]="isPortReceivable('in-' + node.id + '-' + inp.name, 'input')"
                             fNodeInput
                             [fInputId]="'in-' + node.id + '-' + inp.name"
                             fInputConnectableSide="left"
                             [fInputMultiple]="true"
-                            (dblclick)="onPortDoubleClick('in-' + node.id + '-' + inp.name, 'input', $event)"
-                            (click)="onPortClick('in-' + node.id + '-' + inp.name, 'input', $event)"
                           ></div>
                           <span class="port-name">{{ inp.name }}</span>
                           <span class="port-type">{{ inp.type }}</span>
@@ -493,18 +496,21 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
                     <div class="io-section io-outputs">
                       <span class="io-label">OUTPUTS</span>
                       @for (out of getAgentDef(node.agentId)?.outputs || []; track out.name) {
-                        <div class="io-port" [matTooltip]="out.description" matTooltipPosition="right">
+                        <div
+                          class="io-port"
+                          [class.port-row-armed]="armedPortId === 'out-' + node.id + '-' + out.name"
+                          [class.port-row-receivable]="isPortReceivable('out-' + node.id + '-' + out.name, 'output')"
+                          [matTooltip]="out.description"
+                          matTooltipPosition="right"
+                          (click)="onPortClick('out-' + node.id + '-' + out.name, 'output', $event)"
+                        >
                           <span class="port-type">{{ out.type }}</span>
                           <span class="port-name">{{ out.name }}</span>
                           <div
                             class="port port-output"
-                            [class.port-armed]="armedPortId === 'out-' + node.id + '-' + out.name"
-                            [class.port-receivable]="isPortReceivable('out-' + node.id + '-' + out.name, 'output')"
                             fNodeOutput
                             [fOutputId]="'out-' + node.id + '-' + out.name"
                             fOutputConnectableSide="right"
-                            (dblclick)="onPortDoubleClick('out-' + node.id + '-' + out.name, 'output', $event)"
-                            (click)="onPortClick('out-' + node.id + '-' + out.name, 'output', $event)"
                           ></div>
                         </div>
                       }
@@ -910,6 +916,40 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
     .port-output { right: -6px; }
 
     /* ═══ Click-to-Connect States ═══ */
+
+    /* Row-level armed/receivable — whole port row is the click target */
+    .port-row-armed {
+      background: color-mix(in srgb, var(--node-color) 20%, transparent) !important;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .port-row-armed .port {
+      width: 16px !important; height: 16px !important;
+      background: white !important;
+      border: 3px solid var(--node-color) !important;
+      box-shadow: 0 0 0 4px var(--node-color), 0 0 12px var(--node-color) !important;
+      animation: armed-pulse 1.2s ease-in-out infinite;
+    }
+    .port-row-receivable {
+      background: color-mix(in srgb, var(--node-color) 12%, transparent) !important;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .port-row-receivable .port {
+      width: 14px !important; height: 14px !important;
+      background: var(--node-color) !important;
+      box-shadow: 0 0 0 3px var(--node-color-glow), 0 0 8px var(--node-color-glow) !important;
+      animation: receivable-breathe 1s ease-in-out infinite;
+    }
+    .port-row-receivable:hover {
+      background: color-mix(in srgb, var(--node-color) 25%, transparent) !important;
+    }
+    .port-row-receivable:hover .port {
+      width: 18px !important; height: 18px !important;
+      box-shadow: 0 0 0 4px var(--node-color), 0 0 16px var(--node-color) !important;
+    }
+
+    /* Legacy port-level classes (kept for Foblex drag-to-connect) */
     .port-armed {
       width: 16px !important; height: 16px !important;
       background: white !important;
@@ -924,16 +964,13 @@ const AGENT_GROUPS: { key: string; label: string; icon: string; color: string; e
       cursor: pointer !important;
       animation: receivable-breathe 1s ease-in-out infinite;
     }
-    .port-receivable:hover {
-      width: 18px !important; height: 18px !important;
-      box-shadow: 0 0 0 4px var(--node-color), 0 0 16px var(--node-color) !important;
-    }
+
     .connect-mode .workflow-node { pointer-events: auto; }
     .connect-mode .node-header,
     .connect-mode .node-config,
     .connect-mode .config-select,
     .connect-mode .node-delete { pointer-events: none; opacity: 0.6; }
-    .connect-mode .io-port { pointer-events: auto; }
+    .connect-mode .io-port { pointer-events: auto; cursor: pointer; }
 
     @keyframes armed-pulse {
       0%, 100% { box-shadow: 0 0 0 4px var(--node-color), 0 0 12px var(--node-color); }
@@ -1020,17 +1057,49 @@ export class PipelineEditorComponent implements OnInit {
     const agent = event.data;
     if (!agent) return;
     this.nodeCounter++;
+    const newNodeId = `node-${Date.now()}-${this.nodeCounter}`;
+    const dropPos = event.rect ?? { x: 200, y: 200 };
     this.nodes = [...this.nodes, {
-      id: `node-${Date.now()}-${this.nodeCounter}`,
+      id: newNodeId,
       agentId: agent.id,
       name: agent.name,
       icon: agent.icon,
       group: agent.group,
       color: agent.color,
-      position: event.rect ?? { x: 200, y: 200 },
+      position: dropPos,
       mode: 'pipeline',
       config: {},
     }];
+
+    // Auto-wire: connect nearest existing node's first output → new node's first input
+    if (this.nodes.length > 1 && agent.inputs.length > 0) {
+      let nearest: WorkflowNode | null = null;
+      let minDist = Infinity;
+      for (const n of this.nodes) {
+        if (n.id === newNodeId) continue;
+        const def = this.getAgentDef(n.agentId);
+        if (!def || def.outputs.length === 0) continue;
+        const dx = n.position.x - dropPos.x;
+        const dy = n.position.y - dropPos.y;
+        const dist = dx * dx + dy * dy;
+        if (dist < minDist) { minDist = dist; nearest = n; }
+      }
+      if (nearest) {
+        const nearestDef = this.getAgentDef(nearest.agentId)!;
+        const outputId = `out-${nearest.id}-${nearestDef.outputs[0].name}`;
+        const inputId = `in-${newNodeId}-${agent.inputs[0].name}`;
+        const exists = this.edges.some(e => e.outputId === outputId && e.inputId === inputId);
+        if (!exists) {
+          this.edgeCounter++;
+          this.edges = [...this.edges, {
+            id: `edge-${Date.now()}-${this.edgeCounter}`,
+            outputId,
+            inputId,
+          }];
+        }
+      }
+    }
+
     this.cdr.markForCheck();
   }
 
@@ -1064,9 +1133,10 @@ export class PipelineEditorComponent implements OnInit {
   }
 
   /* ═══ Click-to-Connect ═══
-   * Double-click a port to "arm" it. Compatible ports on other nodes
-   * highlight as receivable. Single-click a receivable port to wire.
-   * Escape or clicking the canvas background disarms.
+   * Single-click a port to "arm" it. Compatible ports on other nodes
+   * highlight as receivable. Click a receivable port to wire them.
+   * Clicking the same port again or pressing Escape disarms.
+   * Clicking the canvas background also disarms.
    */
 
   @HostListener('document:keydown.escape')
@@ -1078,29 +1148,39 @@ export class PipelineEditorComponent implements OnInit {
     }
   }
 
-  onPortDoubleClick(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
-    event.stopPropagation();
-    event.preventDefault();
-    this.armedPortId = portId;
-    this.armedPortDirection = direction;
-    this.cdr.markForCheck();
-  }
-
   onPortClick(portId: string, direction: 'input' | 'output', event: MouseEvent): void {
-    if (!this.armedPortId) return;
     event.stopPropagation();
     event.preventDefault();
+
+    // If no port is armed, arm this one
+    if (!this.armedPortId) {
+      this.armedPortId = portId;
+      this.armedPortDirection = direction;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    // Clicking the same port again disarms
+    if (this.armedPortId === portId) {
+      this.disarmPort();
+      return;
+    }
 
     // Can only connect output→input or input→output
-    if (direction === this.armedPortDirection) return;
+    if (direction === this.armedPortDirection) {
+      // Clicking a port of same type re-arms to new port
+      this.armedPortId = portId;
+      this.cdr.markForCheck();
+      return;
+    }
 
     const outputId = direction === 'input' ? this.armedPortId : portId;
     const inputId = direction === 'input' ? portId : this.armedPortId;
 
     // Don't connect to same node
-    const outputNodeId = outputId.split('-').slice(1, -1).join('-');
-    const inputNodeId = inputId.split('-').slice(1, -1).join('-');
-    if (outputNodeId === inputNodeId) return;
+    const outputNodeId = this.extractNodeId(outputId);
+    const inputNodeId = this.extractNodeId(inputId);
+    if (outputNodeId === inputNodeId) { this.disarmPort(); return; }
 
     // Don't create duplicate edges
     const exists = this.edges.some(e => e.outputId === outputId && e.inputId === inputId);
@@ -1117,14 +1197,22 @@ export class PipelineEditorComponent implements OnInit {
 
   isPortReceivable(portId: string, direction: 'input' | 'output'): boolean {
     if (!this.armedPortId || direction === this.armedPortDirection) return false;
-    // Not on same node
-    const armedNodeId = this.armedPortId.split('-').slice(1, -1).join('-');
-    const thisNodeId = portId.split('-').slice(1, -1).join('-');
+    const armedNodeId = this.extractNodeId(this.armedPortId);
+    const thisNodeId = this.extractNodeId(portId);
     return armedNodeId !== thisNodeId;
   }
 
   onCanvasClick(): void {
     this.disarmPort();
+  }
+
+  /** Extract node ID from port ID format: "out-nodeId-portName" or "in-nodeId-portName" */
+  private extractNodeId(portId: string): string {
+    // Port IDs: "out-node-1234-5-portName" or "in-node-1234-5-portName"
+    // Split on first hyphen, then rejoin middle parts (node ID may contain hyphens)
+    const parts = portId.split('-');
+    // Remove first element (in/out) and last element (port name)
+    return parts.slice(1, -1).join('-');
   }
 
   deleteNode(nodeId: string): void {
