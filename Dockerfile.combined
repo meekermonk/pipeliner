@@ -25,6 +25,9 @@ COPY src/ ./src/
 # Copy built Angular app
 COPY --from=ui-build /app/dist/ui/browser /usr/share/nginx/html
 
+# Copy docs (user guide)
+COPY docs/guide.html /usr/share/nginx/html/docs/guide.html
+
 # Copy deploy configs
 COPY deploy/nginx.conf /etc/nginx/sites-available/default
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/app.conf
