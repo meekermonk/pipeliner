@@ -20,7 +20,7 @@ The user grants scope via the Google Drive Picker in the frontend.
 Scopes needed: drive.readonly (import), drive.file (export).
 
 Source reference: CoreAgents export endpoint at
-/Users/dave/playground/Coreagents/src/api/export.py.
+/Users/dave/playground/CoreAgents/src/api/export.py.
 """
 
 from __future__ import annotations

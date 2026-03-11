@@ -14,7 +14,7 @@ dispatch payloads. Only the executor uses them (for Drive operations).
 CoreAgents authenticates via service-account ID tokens, not user tokens.
 
 Source reference: CoreAgents `/v1/dispatch` contract defined in
-/Users/dave/playground/Coreagents/src/api/dispatch.py. The `brief_context`
+/Users/dave/playground/CoreAgents/src/api/dispatch.py. The `brief_context`
 field in the dispatch payload is how grounding documents reach agents.
 """
 

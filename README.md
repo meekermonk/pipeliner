@@ -60,6 +60,8 @@ The Ops Console and CoreAgents already use the same Spanner instance (`innovatio
 **Why Foblex Flow for the editor?**
 Foblex provides a production-ready node-graph canvas with drag-from-palette, magnetic connections, zoom/pan, and serialization. Alternatives (ReactFlow, Angular-native solutions) either require React or lack the palette `fExternalItem` directive that enables dragging new nodes from a sidebar onto the canvas. Foblex's `FCreateNodeEvent.rect` gives exact drop coordinates, critical for a visual builder.
 
+**Click-to-connect:** Double-click any port to arm it — compatible ports on other nodes pulse as receivable targets. Single-click a receivable port to auto-wire. Press Escape or click the canvas to disarm.
+
 **Why own I/O (file upload, Drive import) instead of proxying through CoreAgents?**
 File upload and Drive import are simple GCS + Google API calls (~80 lines). Proxying through CoreAgents would add latency for large files and create an unnecessary runtime dependency. Google Docs export, however, proxies through CoreAgents because the formatting logic (markdown-to-Docs-API conversion) is complex and already implemented there.
 
@@ -116,6 +118,8 @@ When a user clicks "Run", the executor:
 4. For I/O nodes: pulls from Google Drive or pushes to Google Docs
 5. For human-review nodes: pauses and reports `awaiting_review`
 6. On failure: skips all downstream nodes (no partial execution)
+
+**Note:** Pipeline execution currently creates a run record. Async execution dispatch is planned for the next release.
 
 ### Node Types
 

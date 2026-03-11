@@ -13,7 +13,7 @@ is slow or down, the frontend falls back to its baked-in AGENT_REGISTRY array.
 The 502 response signals the frontend to use the fallback.
 
 Source reference: CoreAgents agent list endpoint at
-/Users/dave/playground/Coreagents/src/api/agents.py.
+/Users/dave/playground/CoreAgents/src/api/agents.py.
 """
 
 from __future__ import annotations
